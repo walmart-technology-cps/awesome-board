@@ -6,15 +6,21 @@ app
         teams: []
     };
 
+    o.get = function(id) {
+        return $http.get('/teams/' + id).then(function(res) {
+            return res.data;
+        });
+    };
+
     o.getAll = function() {
-        return $http.get('/teams').success(function(data) {
-            angular.copy(data, o.teams);
+        return $http.get('/teams').then(function(res) {
+            angular.copy(res.data, o.teams);
         });
     };
 
     o.create = function(team) {
-        return $http.post('/teams', team).success(function(data) {
-            o.teams.push(data);
+        return $http.post('/teams', team).then(function(res) {
+            o.teams.push(res.data);
         });
     };
 
@@ -38,6 +44,14 @@ app
             $scope.teamName = '';
         };
     }
+])
+.controller('TeamsCtrl', [
+    '$scope',
+    'teams',
+    'team',
+    function($scope, teams, team) {
+        $scope.team = team;
+    }
 ]);
 
 app.config([
@@ -52,6 +66,16 @@ function($stateProvider, $urlRouterProvider) {
         resolve: {
             postPromise: ['teams', function(teams) {
                 return teams.getAll();
+            }]
+        }
+    })
+    .state('teams', {
+        url: '/teams/{id}',
+        templateUrl: '/teams.html',
+        controller: 'TeamsCtrl',
+        resolve: {
+            team: ['$stateParams', 'teams', function($stateParams, teams) {
+                return teams.get($stateParams.id);
             }]
         }
     });
