@@ -25,7 +25,7 @@ router.get('/teams', function(req, res, next) {
 router.post('/teams', function(req, res, next) {
     var team = new Team(req.body);
 
-    team.save(function(err, post) {
+    team.save(function(err, team) {
         if(err) {
             return next(err);
         }
@@ -49,6 +49,22 @@ router.param('team', function(req, res, next, id) {
     });
 });
 
+router.param('board', function(req, res, next, id) {
+    var query = Board.findById(id);
+
+    query.exec(function (err, board) {
+        if(err) {
+            return next(err);
+        }
+        if(!board) {
+            return next(new Error('can\'t find board'));
+        }
+
+        req.board = board;
+        return next();
+    });
+});
+
 router.get('/teams/:team', function(req, res, next) {
     req.team.populate('boards', function(err, team) {
         if(err) {
@@ -57,6 +73,48 @@ router.get('/teams/:team', function(req, res, next) {
 
         res.json(team);
     });
+});
+
+router.get('/teams/:team/boards', function(req, res, next) {
+  var query = Board.find({"team":req.team});
+
+  query.exec(function(err, boards) {
+    if(err) {
+      return next(err);
+    }
+    if(!boards) {
+      return [];
+    }
+
+    res.json(boards);
+  });
+});
+
+router.get('/teams/:team/boards/:board', function(req, res, next) {
+    req.board.populate(function(err, board) {
+        if(err) {
+            return next(err);
+        }
+
+        res.json(board);
+    });
+});
+
+router.post('/teams/:team/boards', function(req, res, next) {
+  var board = new Board(req.body);
+  board.team = req.team;
+  board.save(function(err, board) {
+    if(err) {
+      return next(err);
+    }
+    req.team.boards.push(board);
+    req.team.save(function(err, team) {
+      if(err) {
+        return next(err);
+      }
+      res.json(board);
+    });
+  });
 });
 
 module.exports = router;

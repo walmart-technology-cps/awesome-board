@@ -16,25 +16,35 @@
     <div class="page-header">
         <h1>Awesome Board!</h1>
     </div>
-    <div ng-repeat="team in teams | orderBy: 'name'">
-        <span style="font-size:20px; margin-left:10px;">
-              <a href="#/teams/{{team._id}}">{{team.name}}</a>
+    <form ng-submit="addTeam()" ng-hide="data.teamSelect" style="margin-top:30px;">
+        <span style="font-size:20px;">
+            Add a new team:
         </span>
-    </div>
-
-    <form ng-submit="addTeam()" style="margin-top:30px;">
-        <h3>Add a new team</h3>
-
-        <div class="form-group">
-            <input type="text" class="form-control" placeholder="Team Name" ng-model="teamName"></input>
-        </div>
-        <button type="submit" class="btn btn-primary">Post</button>
+        <input type="text" class="form-control" placeholder="Team Name" ng-model="teamName"></input>
+        <button type="submit" class="btn btn-primary">Add</button>
     </form>
-</script>
-<script type="text/ng-template" id="/teams.html">
-    <div class="page-header">
-        <h1>{{team.name}}</h1>
-    </div>
+    <form ng-submit="addBoard()" ng-hide="!data.teamSelect || data.boardSelect" style="margin-top:30px;">
+        <span style="font-size:20px;">
+            Add a new board:
+        </span>
+        <input type="text" class="form-control" placeholder="Board Name" ng-model="boardName"></input>
+        <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+    <form name="teamSelectForm">
+        <label for="teamSelect">Select Team:</label>
+        <select name="teamSelect" id="teamSelect" ng-model="data.teamSelect" ng-change="getTeam()">
+            <option value="">---Please Select Team or Add New Above---</option>
+            <option ng-repeat="team in teams | orderBy: 'name'" value="{{team._id}}">{{team.name}}</option>
+        </select>
+    </form>
+    <form name="boardSelectForm">
+        <label for="boardSelect">Select Board:</label>
+        <select name="boardSelect" id="boardSelect" ng-disabled="!team" ng-model="data.boardSelect" ng-change="getBoard()">
+            <option value="">---Please Select Board or Add New Above---</option>
+            <option ng-repeat="board in boards | orderBy: 'name'" value="{{board._id}}">{{board.name}}</option>
+        </select>
+        <tt><h1>{{board.name}}</h1></tt>
+    </form>
 </script>
 </body>
 </html>
