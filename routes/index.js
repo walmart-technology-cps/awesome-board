@@ -244,6 +244,9 @@ router.get('/teams/:team/boards/:board/awesomeState', function(req, res, next) {
 router.post('/teams/:team/boards/:board/currentState', function(req, res, next) {
   var state = new State(req.body);
   state.board = req.board._id;
+  if(!state.title || state.title === '') {
+    state.title = 'Current State';
+  }
   state.save(function(err, state) {
     if(err) {
       return next(err);
@@ -261,6 +264,9 @@ router.post('/teams/:team/boards/:board/currentState', function(req, res, next) 
 router.post('/teams/:team/boards/:board/targetState', function(req, res, next) {
   var state = new State(req.body);
   state.board = req.board._id;
+  if(!state.title || state.title === '') {
+    state.title = 'Target State';
+  }
   state.save(function(err, state) {
     if(err) {
       return next(err);
@@ -278,6 +284,9 @@ router.post('/teams/:team/boards/:board/targetState', function(req, res, next) {
 router.post('/teams/:team/boards/:board/awesomeState', function(req, res, next) {
   var state = new State(req.body);
   state.board = req.board._id;
+  if(!state.title || state.title === '') {
+    state.title = 'Definition of Awesome';
+  }
   state.save(function(err, state) {
     if(err) {
       return next(err);
