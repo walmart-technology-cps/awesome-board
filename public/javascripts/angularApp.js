@@ -5,8 +5,8 @@ app
     var o = {
         teams: [],
         boards: [],
-        team: null,
-        board: null
+        team: {},
+        board: {}
     };
 
     o.get = function(id) {
@@ -54,12 +54,13 @@ app
     'teams',
     function($scope, $filter, teams) {
         $scope.teams = teams.teams;
-        $scope.boards = [];
+        $scope.boards = teams.boards;
+        $scope.team = {};
+        $scope.board = {};
         $scope.data = {
-          teamSelect: ""
+          teamSelect: '',
+          boardSelect: ''
         };
-        $scope.team = null;
-        $scope.board = null;
 
         $scope.addTeam = function() {
             if(!$scope.teamName || $scope.teamName === '') {
@@ -68,7 +69,6 @@ app
             teams.create({
                 name: $scope.teamName
             });
-            $scope.teams = teams.teams;
             $scope.team = teams.team;
             $scope.teamName = '';
             $scope.data.teamSelect = $scope.team._id;
