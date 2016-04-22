@@ -1,10 +1,10 @@
 var express = require('express');
+var env = process.env.NODE_ENV || 'development';
 var router = express.Router();
 var mongoose = require('mongoose');
 var Team = mongoose.model('Team');
 var Board = mongoose.model('Board');
 var State = mongoose.model('State');
-var Scoreboard = mongoose.model('Scoreboard');
 var Lane = mongoose.model('Lane');
 var Achievement = mongoose.model('Achievement');
 
@@ -57,22 +57,6 @@ router.param('state', function(req, res, next, id) {
         }
 
         req.state = state;
-        return next();
-    });
-});
-
-router.param('scoreboard', function(req, res, next, id) {
-    var query = Scoreboard.findById(id);
-
-    query.exec(function (err, scoreboard) {
-        if(err) {
-            return next(err);
-        }
-        if(!scoreboard) {
-            return next(new Error('can\'t find scoreboard'));
-        }
-
-        req.scoreboard = scoreboard;
         return next();
     });
 });
@@ -197,14 +181,14 @@ router.get('/teams/:team/boards/:board/states', function(req, res, next) {
 });
 
 router.get('/teams/:team/boards/:board/currentState', function(req, res, next) {
-  var query = State.find({"_id":req.board.currentState});
+  var query = State.findById(req.board.currentState);
 
   query.exec(function(err, state) {
     if(err) {
       return next(err);
     }
     if(!state) {
-      return [];
+      return {};
     }
 
     res.json(state);
@@ -212,14 +196,14 @@ router.get('/teams/:team/boards/:board/currentState', function(req, res, next) {
 });
 
 router.get('/teams/:team/boards/:board/targetState', function(req, res, next) {
-  var query = State.find({"_id":req.board.targetState});
+  var query = State.findById(req.board.targetState);
 
   query.exec(function(err, state) {
     if(err) {
       return next(err);
     }
     if(!state) {
-      return [];
+      return {};
     }
 
     res.json(state);
@@ -227,14 +211,14 @@ router.get('/teams/:team/boards/:board/targetState', function(req, res, next) {
 });
 
 router.get('/teams/:team/boards/:board/awesomeState', function(req, res, next) {
-  var query = State.find({"_id":req.board.awesomeState});
+  var query = State.findById(req.board.awesomeState);
 
   query.exec(function(err, state) {
     if(err) {
       return next(err);
     }
     if(!state) {
-      return [];
+      return {};
     }
 
     res.json(state);
@@ -308,6 +292,127 @@ router.get('/teams/:team/boards/:board/states/:state', function(req, res, next) 
         }
 
         res.json(state);
+    });
+});
+
+router.get('/teams/:team/boards/:board/scoreboard', function(req, res, next) {
+  var query = Lane.find({"board":req.board});
+
+  query.exec(function(err, lanes) {
+    if(err) {
+      return next(err);
+    }
+    if(!lanes) {
+      return [];
+    }
+
+    res.json(lanes);
+  });
+});
+
+router.post('/teams/:team/boards/:board/scoreboard', function(req, res, next) {
+  var numLanes = req.body.numLanes;
+  var resJson = [];
+  req.board.lanes = [];
+
+  var currentQuery = State.findById(req.board.currentState);
+  var targetQuery = State.findById(req.board.targetState);
+  var currentDate, targetDate;
+  var lane;
+
+  currentQuery.exec(function (err, state) {
+    if(!err && state) {
+      currentDate = Date.parse(state.date);
+      targetQuery.exec(function (err, state) {
+        if(!err && state) {
+          targetDate = Date.parse(state.date);
+          for(var i=0; i<numLanes; i++) {
+            lane = new Lane();
+            lane.board = req.board._id;
+            if(currentDate && targetDate) {
+              lane.startDate = new Date(currentDate + (((targetDate - currentDate)/numLanes) * i)+1);
+              lane.endDate = new Date(currentDate + (((targetDate - currentDate)/numLanes) * (i+1)));
+            }
+            lane.save(function(err, lane) {
+              if(err) {
+                return next(err);
+              }
+              req.board.lanes.push(lane._id);
+              req.board.save(function(err, board) {
+                if(err) {
+                  return next(err);
+                }
+              });
+            });
+            resJson.push(lane);
+          }
+          res.json(resJson);
+        } else {
+          for(var i=0; i<numLanes; i++) {
+            lane = new Lane();
+            lane.board = req.board._id;
+            lane.save(function(err, lane) {
+              if(err) {
+                return next(err);
+              }
+              req.board.lanes.push(lane._id);
+              req.board.save(function(err, board) {
+                if(err) {
+                  return next(err);
+                }
+              });
+            });
+            resJson.push(lane);
+          }
+          res.json(resJson);
+        }
+      });
+    }  else {
+      for(var i=0; i<numLanes; i++) {
+        lane = new Lane();
+        lane.board = req.board._id;
+        lane.save(function(err, lane) {
+          if(err) {
+            return next(err);
+          }
+          req.board.lanes.push(lane._id);
+          req.board.save(function(err, board) {
+            if(err) {
+              return next(err);
+            }
+          });
+        });
+        resJson.push(lane);
+      }
+      res.json(resJson);
+    }
+  });
+});
+
+router.post('/teams/:team/boards/:board/scoreboard/lanes', function(req, res, next) {
+  var lane = new Lane(req.body);
+  lane.board = req.board._id;
+  lane.save(function(err, lane) {
+    if(err) {
+      return next(err);
+    }
+    req.board.lanes.push(lane._id);
+    req.board.save(function(err, board) {
+      if(err) {
+        return next(err);
+      }
+      res.json(lane);
+    });
+  });
+});
+
+router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane', function(req, res, next) {
+    req.lane.populate(function(err, lane) {
+        if(err) {
+            return next(err);
+        }
+
+        res.json(lane);
     });
 });
 

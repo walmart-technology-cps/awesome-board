@@ -9,7 +9,6 @@ var mongoose = require('mongoose');
 require('./models/Teams');
 require('./models/Boards');
 require('./models/States');
-require('./models/Scoreboards');
 require('./models/Lanes');
 require('./models/Achievements');
 

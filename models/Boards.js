@@ -6,7 +6,7 @@ var BoardSchema = new mongoose.Schema({
   currentState: {type: mongoose.Schema.Types.ObjectId, ref: 'State'},
   targetState: {type: mongoose.Schema.Types.ObjectId, ref: 'State'},
   awesomeState: {type: mongoose.Schema.Types.ObjectId, ref: 'State'},
-  scoreboard: {type: mongoose.Schema.Types.ObjectId, ref: 'Scoreboard'}
+  scoreboard: [{type: mongoose.Schema.Types.ObjectId, ref: 'Lane'}]
 });
 
 mongoose.model('Board', BoardSchema);
