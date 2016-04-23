@@ -4,9 +4,7 @@ app
 .factory('teams', ['$http', function($http) {
     var o = {
         teams: [],
-        boards: [],
-        team: {},
-        board: {}
+        boards: []
     };
 
     o.get = function(id) {
@@ -25,14 +23,13 @@ app
     o.create = function(team) {
         return $http.post('/teams', team).then(function(res) {
             o.teams.push(res.data);
-            angular.copy(res.data, o.team);
             return res.data;
         });
     };
 
     o.addBoard = function(teamId, board) {
       return $http.post('/teams/' + teamId + '/boards', board).then(function(res) {
-        angular.copy(res.data, o.board);
+        o.boards.push(res.data);
         return res.data;
       });
     };
@@ -43,6 +40,8 @@ app
         return res.data;
       });
     };
+
+
 
   return o;
 }]);
@@ -55,8 +54,6 @@ app
     function($scope, $filter, teams) {
         $scope.teams = teams.teams;
         $scope.boards = teams.boards;
-        $scope.team = {};
-        $scope.board = {};
         $scope.data = {
           teamSelect: '',
           boardSelect: ''
@@ -68,10 +65,12 @@ app
             }
             teams.create({
                 name: $scope.teamName
+            }).then(function(team){
+              $scope.teams = teams.teams;
+              $scope.team = team;
+              $scope.teamName = '';
+              $scope.data.teamSelect = team;
             });
-            $scope.team = teams.team;
-            $scope.teamName = '';
-            $scope.data.teamSelect = $scope.team._id;
         };
 
         $scope.addBoard = function() {
@@ -81,12 +80,13 @@ app
             var board = {
               name: $scope.boardName
             };
-            teams.addBoard($scope.data.teamSelect, board);
-            $scope.board = teams.board;
-            $scope.boardName = '';
-            teams.getBoards($scope.data.teamSelect);
-            $scope.boards = teams.boards;
-            $scope.data.boardSelect = $scope.board._id;
+            teams.addBoard($scope.data.teamSelect._id, board)
+                 .then(function(board) {
+              $scope.boards = teams.boards;
+              $scope.board = board;
+              $scope.boardName = '';
+              $scope.data.boardSelect = board;
+            });
         };
 
         $scope.getTeam = function() {
@@ -97,8 +97,8 @@ app
             $scope.data.boardSelect = '';
             return;
           }
-          $scope.team = teams.get($scope.data.teamSelect);
-          teams.getBoards($scope.data.teamSelect);
+          $scope.team = teams.get($scope.data.teamSelect._id);
+          teams.getBoards($scope.data.teamSelect._id);
           $scope.boards = teams.boards;
           $scope.data.boardSelect = '';
         };

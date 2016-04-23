@@ -32,19 +32,26 @@
     </form>
     <form name="teamSelectForm">
         <label for="teamSelect">Select Team:</label>
-        <select name="teamSelect" id="teamSelect" ng-model="data.teamSelect" ng-change="getTeam()">
+        <select name="teamSelect" id="teamSelect" ng-model="data.teamSelect" ng-change="getTeam()"
+                ng-options="team.name for team in teams | orderBy: 'name'">
             <option value="">---Please Select Team or Add New Above---</option>
-            <option ng-repeat="team in teams | orderBy: 'name'" value="{{team._id}}">{{team.name}}</option>
         </select>
     </form>
     <form name="boardSelectForm">
         <label for="boardSelect">Select Board:</label>
-        <select name="boardSelect" id="boardSelect" ng-disabled="!team" ng-model="data.boardSelect" ng-change="getBoard()">
+        <select name="boardSelect" id="boardSelect" ng-disabled="!team" ng-model="data.boardSelect" ng-change="getBoard()"
+                ng-options="board.name for board in boards | orderBy: 'name'">
             <option value="">---Please Select Board or Add New Above---</option>
-            <option ng-repeat="board in boards | orderBy: 'name'" value="{{board._id}}">{{board.name}}</option>
         </select>
-        <tt><h1>{{board.name}}</h1></tt>
     </form>
+    <div class="row" ng-show="board">
+        <div class="col-md-6 col-md-offset-3">
+            <h2>{{board.name}}</h2>
+            <h3 ng-show="currentState">{{currentState.title}}</h3>
+            <h3 ng-show="targetState">{{targetState.title}}</h3>
+            <h3 ng-show="awesomeState">{{awesomeState.title}}</h3>
+        </div>
+    </div>
 </script>
 </body>
 </html>
