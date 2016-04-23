@@ -416,4 +416,159 @@ router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane', function(req, re
     });
 });
 
+router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements', function(req, res, next) {
+  var query = Achievement.find({"lane":req.lane});
+
+  query.exec(function(err, achievements) {
+    if(err) {
+      return next(err);
+    }
+    if(!achievements) {
+      return [];
+    }
+
+    res.json(achievements);
+  });
+});
+
+router.post('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements', function(req, res, next) {
+  var achievement = new Achievement(req.body);
+  achievement.lane = req.lane._id;
+  achievement.save(function(err, achievement) {
+    if(err) {
+      return next(err);
+    }
+    req.lane.achievements.push(achievement._id);
+    req.lane.save(function(err, lane) {
+      if(err) {
+        return next(err);
+      }
+      res.json(achievement);
+    });
+  });
+});
+
+router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements/:achievement', function(req, res, next) {
+    req.achievement.populate(function(err, achievement) {
+        if(err) {
+            return next(err);
+        }
+
+        res.json(achievement);
+    });
+});
+
+router.get('/teams/:team/boards/:board/scoreboard/achievements', function(req, res, next) {
+  var query = Achievement.find({"lane":{$in:req.board.lanes}});
+
+  query.exec(function(err, achievements) {
+    if(err) {
+      return next(err);
+    }
+    if(!achievements) {
+      return [];
+    }
+
+    res.json(achievements);
+  });
+});
+
+router.post('/teams/:team/boards/:board/scoreboard/achievements', function(req, res, next) {
+  var achievement = new Achievement(req.body);
+  var query = Lane.find({'board':req.board});
+  var now = Date.now();
+  var lane, start, end;
+
+  if('development'===env) {
+    console.log('Adding achievement!');
+    console.log(now);
+  }
+
+  if(achievement.date) {
+    now = Date.parse(achievement.date);
+
+    if('development'===env) {
+      console.log('Changing date!');
+      console.log(now);
+    }
+  } else {
+    achievement.date = new Date(now);
+  }
+
+  query.exec(function(err, lanes) {
+    if(err) {
+      return next(err);
+    }
+    if(!lanes) {
+      return next(new Error('No lanes found!'));
+    }
+
+    if('development'===env) {
+      console.log('LANES!!!');
+      console.log(lanes);
+    }
+
+    for(var i=0; lanes && i<lanes.length; i++) {
+      lane = lanes[i];
+      start = Date.parse(lane.startDate);
+      end = Date.parse(lane.endDate);
+      if('development'===env) {
+        console.log('Start of lane: ' + start);
+        console.log('End of lane:   ' + end);
+      }
+      if(start && end && now >+ start && now <= end) {
+        if('development'===env) {
+          console.log('Found lane: ' + lane._id);
+        }
+        achievement.lane = lane._id;
+        req.lane = lane;
+        break;
+      }
+    }
+
+    if(!req.lane) {
+      return next(new Error('Can\'t find lane for achievement'));
+    }
+
+    achievement.save(function(err, achievement) {
+      if(err) {
+        return next(err);
+      }
+      req.lane.save(function(err, lane) {
+        if(err) {
+          return next(err)
+        }
+      });
+      res.json(achievement);
+    });
+  });
+});
+
+router.get('/teams/:team/boards/:board/scoreboard/achievements/:achievement', function(req, res, next) {
+    req.achievement.populate(function(err, achievement) {
+        if(err) {
+            return next(err);
+        }
+
+        res.json(achievement);
+    });
+});
+
 module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
