@@ -446,18 +446,8 @@ router.post('/teams/:team/boards/:board/scoreboard/achievements', function(req, 
   var now = Date.now();
   var lane, start, end;
 
-  if('development'===env) {
-    console.log('Adding achievement!');
-    console.log(now);
-  }
-
   if(achievement.date) {
     now = Date.parse(achievement.date);
-
-    if('development'===env) {
-      console.log('Changing date!');
-      console.log(now);
-    }
   } else {
     achievement.date = new Date(now);
   }
@@ -470,23 +460,11 @@ router.post('/teams/:team/boards/:board/scoreboard/achievements', function(req, 
       return next(new Error('No lanes found!'));
     }
 
-    if('development'===env) {
-      console.log('LANES!!!');
-      console.log(lanes);
-    }
-
     for(var i=0; lanes && i<lanes.length; i++) {
       lane = lanes[i];
       start = Date.parse(lane.startDate);
       end = Date.parse(lane.endDate);
-      if('development'===env) {
-        console.log('Start of lane: ' + start);
-        console.log('End of lane:   ' + end);
-      }
       if(start && end && now >+ start && now <= end) {
-        if('development'===env) {
-          console.log('Found lane: ' + lane._id);
-        }
         achievement.lane = lane._id;
         req.lane = lane;
         break;
