@@ -315,62 +315,29 @@ router.post('/teams/:team/boards/:board/scoreboard', function(req, res, next) {
   var resJson = [];
   req.board.lanes = [];
 
-  var currentQuery = State.findById(req.board.currentState);
-  var targetQuery = State.findById(req.board.targetState);
+  var currentQuery, targetQuery;
   var currentDate, targetDate;
   var lane;
 
-  currentQuery.exec(function (err, state) {
-    if(!err && state) {
-      currentDate = Date.parse(state.date);
-      targetQuery.exec(function (err, state) {
-        if(!err && state) {
-          targetDate = Date.parse(state.date);
-          for(var i=0; i<numLanes; i++) {
-            lane = new Lane();
-            lane.board = req.board._id;
-            if(currentDate && targetDate) {
-              lane.startDate = new Date(currentDate + (((targetDate - currentDate)/numLanes) * i)+1);
-              lane.endDate = new Date(currentDate + (((targetDate - currentDate)/numLanes) * (i+1)));
-            }
-            lane.save(function(err, lane) {
-              if(err) {
-                return next(err);
-              }
-              req.board.lanes.push(lane._id);
-              req.board.save(function(err, board) {
-                if(err) {
-                  return next(err);
-                }
-              });
-            });
-            resJson.push(lane);
-          }
-          res.json(resJson);
-        } else {
-          for(var i=0; i<numLanes; i++) {
-            lane = new Lane();
-            lane.board = req.board._id;
-            lane.save(function(err, lane) {
-              if(err) {
-                return next(err);
-              }
-              req.board.lanes.push(lane._id);
-              req.board.save(function(err, board) {
-                if(err) {
-                  return next(err);
-                }
-              });
-            });
-            resJson.push(lane);
-          }
-          res.json(resJson);
-        }
-      });
-    }  else {
+  currentQuery = State.find({"_id":req.board.currentState});
+  currentQuery.exec(function (err, currentStates) {
+    if(!err && currentStates && currentStates.length === 1) {
+      currentDate = Date.parse(currentStates[0].date);
+    }
+  }).then(function () {
+    targetQuery = State.find({"_id":req.board.targetState});
+    targetQuery.exec(function (err, targetStates) {
+      if(!err && targetStates && targetStates.length === 1) {
+        targetDate = Date.parse(targetStates[0].date);
+      }
+    }).then(function () {
       for(var i=0; i<numLanes; i++) {
         lane = new Lane();
         lane.board = req.board._id;
+        if(currentDate && targetDate) {
+          lane.startDate = new Date(currentDate + (((targetDate - currentDate)/numLanes) * i)+1);
+          lane.endDate = new Date(currentDate + (((targetDate - currentDate)/numLanes) * (i+1)));
+        }
         lane.save(function(err, lane) {
           if(err) {
             return next(err);
@@ -385,8 +352,8 @@ router.post('/teams/:team/boards/:board/scoreboard', function(req, res, next) {
         resJson.push(lane);
       }
       res.json(resJson);
-    }
-  });
+    });
+  })
 });
 
 router.post('/teams/:team/boards/:board/scoreboard/lanes', function(req, res, next) {
