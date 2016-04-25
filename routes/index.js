@@ -18,6 +18,9 @@ router.param('team', function(req, res, next, id) {
 
     query.exec(function (err, team) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
         if(!team) {
@@ -34,6 +37,9 @@ router.param('board', function(req, res, next, id) {
 
     query.exec(function (err, board) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
         if(!board) {
@@ -50,6 +56,9 @@ router.param('state', function(req, res, next, id) {
 
     query.exec(function (err, state) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
         if(!state) {
@@ -66,6 +75,9 @@ router.param('lane', function(req, res, next, id) {
 
     query.exec(function (err, lane) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
         if(!lane) {
@@ -82,6 +94,9 @@ router.param('achievement', function(req, res, next, id) {
 
     query.exec(function (err, achievement) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
         if(!achievement) {
@@ -96,6 +111,9 @@ router.param('achievement', function(req, res, next, id) {
 router.get('/teams', function(req, res, next) {
     Team.find(function(err, teams) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
         res.json(teams);
@@ -107,7 +125,16 @@ router.post('/teams', function(req, res, next) {
 
     team.save(function(err, team) {
         if(err) {
-            return next(err);
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
+            if(err.code === 11000) {
+              var newErr = new Error('Duplicate name not allowed');
+              newErr.status = 400;
+              return next(newErr);
+            } else {
+              return next(err);
+            }
         }
         res.json(team);
     });
@@ -116,6 +143,9 @@ router.post('/teams', function(req, res, next) {
 router.get('/teams/:team', function(req, res, next) {
     req.team.populate('boards', function(err, team) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
 
@@ -128,6 +158,9 @@ router.get('/teams/:team/boards', function(req, res, next) {
 
   query.exec(function(err, boards) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     if(!boards) {
@@ -143,7 +176,16 @@ router.post('/teams/:team/boards', function(req, res, next) {
   board.team = req.team._id;
   board.save(function(err, board) {
     if(err) {
-      return next(err);
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
+      if(err.code === 11000) {
+        var newErr = new Error('Duplicate name not allowed');
+        newErr.status = 400;
+        return next(newErr);
+      } else {
+        return next(err);
+      }
     }
     req.team.boards.push(board._id);
     req.team.save(function(err, team) {
@@ -158,6 +200,9 @@ router.post('/teams/:team/boards', function(req, res, next) {
 router.get('/teams/:team/boards/:board', function(req, res, next) {
     req.board.populate(function(err, board) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
 
@@ -170,6 +215,9 @@ router.get('/teams/:team/boards/:board/states', function(req, res, next) {
 
   query.exec(function(err, states) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     if(!states) {
@@ -185,6 +233,9 @@ router.get('/teams/:team/boards/:board/currentState', function(req, res, next) {
 
   query.exec(function(err, state) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     if(!state) {
@@ -200,6 +251,9 @@ router.get('/teams/:team/boards/:board/targetState', function(req, res, next) {
 
   query.exec(function(err, state) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     if(!state) {
@@ -215,6 +269,9 @@ router.get('/teams/:team/boards/:board/awesomeState', function(req, res, next) {
 
   query.exec(function(err, state) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     if(!state) {
@@ -233,6 +290,9 @@ router.post('/teams/:team/boards/:board/currentState', function(req, res, next) 
   }
   state.save(function(err, state) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     req.board.currentState = state._id;
@@ -253,6 +313,9 @@ router.post('/teams/:team/boards/:board/targetState', function(req, res, next) {
   }
   state.save(function(err, state) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     req.board.targetState = state._id;
@@ -273,6 +336,9 @@ router.post('/teams/:team/boards/:board/awesomeState', function(req, res, next) 
   }
   state.save(function(err, state) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     req.board.awesomeState = state._id;
@@ -288,6 +354,9 @@ router.post('/teams/:team/boards/:board/awesomeState', function(req, res, next) 
 router.get('/teams/:team/boards/:board/states/:state', function(req, res, next) {
     req.state.populate(function(err, state) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
 
@@ -300,6 +369,9 @@ router.get('/teams/:team/boards/:board/scoreboard', function(req, res, next) {
 
   query.exec(function(err, lanes) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     if(!lanes) {
@@ -340,11 +412,17 @@ router.post('/teams/:team/boards/:board/scoreboard', function(req, res, next) {
         }
         lane.save(function(err, lane) {
           if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
           }
           req.board.lanes.push(lane._id);
           req.board.save(function(err, board) {
             if(err) {
+              if('development'===env) {
+                console.log('ERROR: ' + err);
+              }
               return next(err);
             }
           });
@@ -361,11 +439,17 @@ router.post('/teams/:team/boards/:board/scoreboard/lanes', function(req, res, ne
   lane.board = req.board._id;
   lane.save(function(err, lane) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     req.board.lanes.push(lane._id);
     req.board.save(function(err, board) {
       if(err) {
+        if('development'===env) {
+          console.log('ERROR: ' + err);
+        }
         return next(err);
       }
       res.json(lane);
@@ -376,6 +460,9 @@ router.post('/teams/:team/boards/:board/scoreboard/lanes', function(req, res, ne
 router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane', function(req, res, next) {
     req.lane.populate(function(err, lane) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
 
@@ -388,6 +475,9 @@ router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements', fun
 
   query.exec(function(err, achievements) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     if(!achievements) {
@@ -403,11 +493,17 @@ router.post('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements', fu
   achievement.lane = req.lane._id;
   achievement.save(function(err, achievement) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     req.lane.achievements.push(achievement._id);
     req.lane.save(function(err, lane) {
       if(err) {
+        if('development'===env) {
+          console.log('ERROR: ' + err);
+        }
         return next(err);
       }
       res.json(achievement);
@@ -418,6 +514,9 @@ router.post('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements', fu
 router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements/:achievement', function(req, res, next) {
     req.achievement.populate(function(err, achievement) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
 
@@ -430,6 +529,9 @@ router.get('/teams/:team/boards/:board/scoreboard/achievements', function(req, r
 
   query.exec(function(err, achievements) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     if(!achievements) {
@@ -454,6 +556,9 @@ router.post('/teams/:team/boards/:board/scoreboard/achievements', function(req, 
 
   query.exec(function(err, lanes) {
     if(err) {
+      if('development'===env) {
+        console.log('ERROR: ' + err);
+      }
       return next(err);
     }
     if(!lanes) {
@@ -477,10 +582,16 @@ router.post('/teams/:team/boards/:board/scoreboard/achievements', function(req, 
 
     achievement.save(function(err, achievement) {
       if(err) {
+        if('development'===env) {
+          console.log('ERROR: ' + err);
+        }
         return next(err);
       }
       req.lane.save(function(err, lane) {
         if(err) {
+          if('development'===env) {
+            console.log('ERROR: ' + err);
+          }
           return next(err)
         }
       });
@@ -492,6 +603,9 @@ router.post('/teams/:team/boards/:board/scoreboard/achievements', function(req, 
 router.get('/teams/:team/boards/:board/scoreboard/achievements/:achievement', function(req, res, next) {
     req.achievement.populate(function(err, achievement) {
         if(err) {
+            if('development'===env) {
+              console.log('ERROR: ' + err);
+            }
             return next(err);
         }
 
@@ -500,20 +614,3 @@ router.get('/teams/:team/boards/:board/scoreboard/achievements/:achievement', fu
 });
 
 module.exports = router;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

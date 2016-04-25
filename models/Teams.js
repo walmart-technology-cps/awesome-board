@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 var TeamSchema = new mongoose.Schema({
-  name: String,
+  name: {type: String, required: true, unique: true},
   boards: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Board' }]
 });
 
