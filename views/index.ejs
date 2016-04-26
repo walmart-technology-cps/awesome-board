@@ -16,6 +16,20 @@
     <div class="page-header">
         <h1>Awesome Board!</h1>
     </div>
+    <form name="teamSelectForm">
+        <label for="teamSelect">Select Team:</label>
+        <select name="teamSelect" id="teamSelect" ng-model="data.teamSelect" ng-change="getTeam()"
+                ng-options="team.name for team in teams | orderBy: 'name'" class="lead">
+            <option value="">---Please Select Team or Add New Below---</option>
+        </select>
+    </form>
+    <form name="boardSelectForm">
+        <label for="boardSelect">Select Board:</label>
+        <select name="boardSelect" id="boardSelect" ng-disabled="!team" ng-model="data.boardSelect" ng-change="getBoard()"
+                ng-options="board.name for board in boards | orderBy: 'name'" class="lead">
+            <option value="">---Please Select Board or Add New Below---</option>
+        </select>
+    </form>
     <form ng-submit="addTeam()" ng-hide="data.teamSelect" style="margin-top:30px;">
         <span style="font-size:20px;">
             Add a new team:
@@ -29,20 +43,6 @@
         </span>
         <input type="text" class="form-control" placeholder="Board Name" ng-model="boardName"></input>
         <button type="submit" class="btn btn-primary">Add</button>
-    </form>
-    <form name="teamSelectForm">
-        <label for="teamSelect">Select Team:</label>
-        <select name="teamSelect" id="teamSelect" ng-model="data.teamSelect" ng-change="getTeam()"
-                ng-options="team.name for team in teams | orderBy: 'name'">
-            <option value="">---Please Select Team or Add New Above---</option>
-        </select>
-    </form>
-    <form name="boardSelectForm">
-        <label for="boardSelect">Select Board:</label>
-        <select name="boardSelect" id="boardSelect" ng-disabled="!team" ng-model="data.boardSelect" ng-change="getBoard()"
-                ng-options="board.name for board in boards | orderBy: 'name'">
-            <option value="">---Please Select Board or Add New Above---</option>
-        </select>
     </form>
     <div class="row" ng-show="board">
         <div class="col-md-6 col-md-offset-3">
