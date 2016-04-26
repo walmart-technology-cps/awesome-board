@@ -2,6 +2,7 @@
 <head>
     <title>Awesome Board v0.0.1</title>
     <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/stylesheets/style.css" rel="stylesheet">
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <script src="/javascripts/angularApp.js"></script>
@@ -48,8 +49,11 @@
         <div class="col-md-6 col-md-offset-3">
             <h2>{{board.name}}</h2>
             <h3 ng-show="board.currentState">{{board.currentState.title}}</h3>
+            <editable-textarea value="board.currentState.description" update="board.currentState"></editable-textarea>
             <h3 ng-show="board.targetState">{{board.targetState.title}}</h3>
+            <editable-textarea value="board.targetState.description" update="board.targetState"></editable-textarea>
             <h3 ng-show="board.awesomeState">{{board.awesomeState.title}}</h3>
+            <editable-textarea value="board.awesomeState.description" update="board.awesomeState"></editable-textarea>
         </div>
     </div>
 </script>

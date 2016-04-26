@@ -6,3 +6,19 @@ body {
 a {
   color: #00B7FF;
 }
+
+.edit-in-place span {
+  cursor: pointer;
+}
+
+.edit-in-place textarea {
+  display: none;
+}
+
+.edit-in-place.active span {
+  display: none;
+}
+
+.edit-in-place.active textarea {
+  display: inline-block;
+}

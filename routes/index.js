@@ -137,21 +137,17 @@ router.post('/teams', function(req, res, next) {
   });
 });
 
-router.get('/teams/:team/:data?', function(req, res, next) {
-  if(req.data && 'full' === req.data) {
-    req.team.populate('boards', function(err, team) {
-      if(err) {
-        if('development'===env) {
-          console.warn('ERROR: ' + err);
-        }
-        return next(err);
+router.get('/teams/:team/', function(req, res, next) {
+  req.team.populate('boards', function(err, team) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
       }
+      return next(err);
+    }
 
-      res.json(team);
-    });
-  } else {
-    res.json(req.team);
-  }
+    res.json(team);
+  });
 });
 
 router.put('/teams/:team', function(req, res, next) {
@@ -260,44 +256,40 @@ router.post('/teams/:team/boards', function(req, res, next) {
   });
 });
 
-router.get('/teams/:team/boards/:board/:data?', function(req, res, next) {
-  if(req.data && 'full' === req.data) {
-    req.board.populate('achievements', function(err, board) {
+router.get('/teams/:team/boards/:board', function(req, res, next) {
+  req.board.populate('achievements', function(err, board) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    req.board.populate('currentState', function(err, board) {
       if(err) {
         if('development'===env) {
           console.warn('ERROR: ' + err);
         }
         return next(err);
       }
-      req.board.populate('currentState', function(err, board) {
+      req.board.populate('targetState', function(err, board) {
         if(err) {
           if('development'===env) {
             console.warn('ERROR: ' + err);
           }
           return next(err);
         }
-        req.board.populate('targetState', function(err, board) {
+        req.board.populate('awesomeState', function(err, board) {
           if(err) {
             if('development'===env) {
               console.warn('ERROR: ' + err);
             }
             return next(err);
           }
-          req.board.populate('awesomeState', function(err, board) {
-            if(err) {
-              if('development'===env) {
-                console.warn('ERROR: ' + err);
-              }
-              return next(err);
-            }
-            res.json(board);
-          });
+          res.json(board);
         });
       });
     });
-  } else {
-    res.json(req.board);
-  }
+  });
 });
 
 router.put('/teams/:team/boards/:board', function(req, res, next) {
@@ -339,14 +331,32 @@ router.delete('/teams/:team/boards/:board', function(req, res, next) {
       return states;
     })
   }).then(function() {
-    req.board.remove(function(err, board) {
+    if('development'===env) {
+      console.log(req.team.boards);
+      console.log(req.board._id);
+    }
+    req.team.boards.splice(req.team.boards.indexOf(req.board._id), 1);
+    if('development'===env) {
+      console.log(req.team.boards);
+    }
+    req.team.save(function(err, team) {
       if(err) {
         if('development'===env) {
           console.warn('ERROR: ' + err);
         }
         return next(err);
       }
-      res.json(board);
+      return team;
+    }).then(function() {
+      req.board.remove(function(err, board) {
+        if(err) {
+          if('development'===env) {
+            console.warn('ERROR: ' + err);
+          }
+          return next(err);
+        }
+        res.json(board);
+      });
     });
   });
 });
