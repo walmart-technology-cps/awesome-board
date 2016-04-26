@@ -149,6 +149,52 @@ router.put('/teams/:team', function(req, res, next) {
   });
 });
 
+router.delete('/teams/:team', function(req, res, next) {
+  var achievementQuery = Achievement.find({"board":{$in:req.team.boards}});
+
+  achievementQuery.remove(function(err, achievements) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    return achievements;
+  }).then(function() {
+    var stateQuery = State.find({"board":{$in:req.team.boards}});
+    stateQuery.remove(function(err, states) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      return states;
+    })
+  }).then(function() {
+    var boardQuery = Board.find({"team":req.team._id});
+    boardQuery.remove(function(err, boards) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      return boards;
+    });
+  }).then(function() {
+    req.team.remove(function(err, team) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      res.json(team);
+    });
+  });
+});
+
 router.get('/teams/:team/boards', function(req, res, next) {
   var query = Board.find({"team":req.team});
 
@@ -219,6 +265,41 @@ router.put('/teams/:team/boards/:board', function(req, res, next) {
       return next(err);
     }
     res.json(board);
+  });
+});
+
+router.delete('/teams/:team/boards/:board', function(req, res, next) {
+  var achievementQuery = Achievement.find({"board":req.board});
+
+  achievementQuery.remove(function(err, achievements) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    return achievements;
+  }).then(function() {
+    var stateQuery = State.find({"board":req.board});
+    stateQuery.remove(function(err, states) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      return states;
+    })
+  }).then(function() {
+    req.board.remove(function(err, board) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      res.json(board);
+    });
   });
 });
 
@@ -478,16 +559,16 @@ router.put('/teams/:team/boards/:board/awesomeState', function(req, res, next) {
 });
 
 router.get('/teams/:team/boards/:board/states/:state', function(req, res, next) {
-    req.state.populate(function(err, state) {
-        if(err) {
-            if('development'===env) {
-              console.warn('ERROR: ' + err);
-            }
-            return next(err);
-        }
+  req.state.populate(function(err, state) {
+      if(err) {
+          if('development'===env) {
+            console.warn('ERROR: ' + err);
+          }
+          return next(err);
+      }
 
-        res.json(state);
-    });
+      res.json(state);
+  });
 });
 
 router.put('/teams/:team/boards/:board/states/:state', function(req, res, next) {
@@ -553,6 +634,29 @@ router.post('/teams/:team/boards/:board/achievements', function(req, res, next) 
   });
 });
 
+router.delete('/teams/:team/boards/:board/achievements', function(req, res, next) {
+  var query = Achievement.find({"board":req.board});
+
+  query.remove(function(err, achievements) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    req.board.achievements = [];
+    req.board.save(function(err, board) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      res.json(achievements);
+    });
+  });
+});
+
 router.get('/teams/:team/boards/:board/achievements/:achievement', function(req, res, next) {
     req.achievement.populate(function(err, achievement) {
         if(err) {
@@ -585,6 +689,27 @@ router.put('/teams/:team/boards/:board/achievements/:achievement', function(req,
       return next(err);
     }
     res.json(achievement);
+  });
+});
+
+router.delete('/teams/:team/boards/:board/achievements/:achievement', function(req, res, next) {
+  req.achievement.remove(function(err, achievement) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    req.board.achievements.pull(achievement);
+    req.board.save(function(err, board) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      res.json(achievement);
+    })
   });
 });
 
