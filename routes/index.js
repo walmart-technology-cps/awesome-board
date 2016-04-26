@@ -138,6 +138,10 @@ router.post('/teams', function(req, res, next) {
 });
 
 router.get('/teams/:team/', function(req, res, next) {
+  res.json(req.team);
+});
+
+router.get('/teams/:team/full', function(req, res, next) {
   req.team.populate('boards', function(err, team) {
     if(err) {
       if('development'===env) {
@@ -257,6 +261,10 @@ router.post('/teams/:team/boards', function(req, res, next) {
 });
 
 router.get('/teams/:team/boards/:board', function(req, res, next) {
+  res.json(req.board);
+});
+
+router.get('/teams/:team/boards/:board/full', function(req, res, next) {
   req.board.populate('achievements', function(err, board) {
     if(err) {
       if('development'===env) {
