@@ -18,10 +18,10 @@ Digital solution for an Awesome Board a.k.a. Spotify Improvement Board a.k.a. To
 1. Make sure mongodb is running by typing `mongod &`
 1. Type `npm install` - this will pull all of the dependencies found in the package.json file
 1. Start the express server by typing `npm start`
-  * The UI will be accessible via http://localhost:3000/#/home.html
+  * The UI will be accessible via [http://localhost:3000/#/home.html](http://localhost:3000/#/home.html)
 
 ## ReST API
-**The ReST API has been implemented thusly (accessible from root http://localhost:3000/:**
+**The ReST API has been implemented thusly (accessible from root [http://localhost:3000/](http://localhost:3000/):**
 * /teams
   * GET - JSON array of teams
       `[{"_id":"a1phanum3ric","name":"Team Name 1","__v":1,"boards":["a1phanum3ric"]},{"_id":"a1phanum3ric","name":"Team 2","__v":2,"boards":["a1phanum3ric","a1phanum3ric"]}]`
