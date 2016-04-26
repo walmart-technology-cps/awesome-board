@@ -113,9 +113,6 @@ app
           }
           teams.getBoard($scope.data.teamSelect._id, $scope.data.boardSelect._id).then(function(board) {
             $scope.board = board;
-            if('development'===env) {
-              console.log($scope.board);
-            }
           });
         };
     }
