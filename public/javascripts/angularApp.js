@@ -1,4 +1,5 @@
 var app = angular.module('awesomeBoard', ['ui.router']);
+var env = 'development';
 
 app
 .factory('teams', ['$http', function($http) {
@@ -41,7 +42,11 @@ app
       });
     };
 
-
+    o.getBoard = function(teamId, boardId) {
+      return $http.get('/teams/' + teamId + '/boards/' + boardId).then(function(res) {
+        return res.data;
+      });
+    };
 
   return o;
 }]);
@@ -68,7 +73,6 @@ app
             }).then(function(team){
               $scope.teams = teams.teams;
               $scope.team = team;
-              $scope.teamName = '';
               $scope.data.teamSelect = team;
             });
         };
@@ -84,13 +88,12 @@ app
                  .then(function(board) {
               $scope.boards = teams.boards;
               $scope.board = board;
-              $scope.boardName = '';
               $scope.data.boardSelect = board;
             });
         };
 
         $scope.getTeam = function() {
-          if($scope.data.teamSelect === '') {
+          if(!$scope.data.teamSelect) {
             $scope.team = null;
             $scope.board = null;
             $scope.boards = [];
@@ -104,10 +107,16 @@ app
         };
 
         $scope.getBoard = function() {
-          if($scope.data.boardSelect === '') {
+          if(!$scope.data.boardSelect) {
+            $scope.board = null;
             return;
           }
-          $scope.board = $filter('filter')($scope.boards, {_id:$scope.data.boardSelect})[0];
+          teams.getBoard($scope.data.teamSelect._id, $scope.data.boardSelect._id).then(function(board) {
+            $scope.board = board;
+            if('development'===env) {
+              console.log($scope.board);
+            }
+          });
         };
     }
 ]);
