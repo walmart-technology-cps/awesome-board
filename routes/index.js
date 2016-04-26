@@ -5,7 +5,6 @@ var mongoose = require('mongoose');
 var Team = mongoose.model('Team');
 var Board = mongoose.model('Board');
 var State = mongoose.model('State');
-var Lane = mongoose.model('Lane');
 var Achievement = mongoose.model('Achievement');
 
 /* GET home page. */
@@ -66,25 +65,6 @@ router.param('state', function(req, res, next, id) {
         }
 
         req.state = state;
-        return next();
-    });
-});
-
-router.param('lane', function(req, res, next, id) {
-    var query = Lane.findById(id);
-
-    query.exec(function (err, lane) {
-        if(err) {
-            if('development'===env) {
-              console.log('ERROR: ' + err);
-            }
-            return next(err);
-        }
-        if(!lane) {
-            return next(new Error('can\'t find lane'));
-        }
-
-        req.lane = lane;
         return next();
     });
 });
@@ -364,114 +344,8 @@ router.get('/teams/:team/boards/:board/states/:state', function(req, res, next) 
     });
 });
 
-router.get('/teams/:team/boards/:board/scoreboard', function(req, res, next) {
-  var query = Lane.find({"board":req.board});
-
-  query.exec(function(err, lanes) {
-    if(err) {
-      if('development'===env) {
-        console.log('ERROR: ' + err);
-      }
-      return next(err);
-    }
-    if(!lanes) {
-      return [];
-    }
-
-    res.json(lanes);
-  });
-});
-
-router.post('/teams/:team/boards/:board/scoreboard', function(req, res, next) {
-  var numLanes = req.body.numLanes;
-  var resJson = [];
-  req.board.lanes = [];
-
-  var currentQuery, targetQuery;
-  var currentDate, targetDate;
-  var lane;
-
-  currentQuery = State.find({"_id":req.board.currentState});
-  currentQuery.exec(function (err, currentStates) {
-    if(!err && currentStates && currentStates.length === 1) {
-      currentDate = Date.parse(currentStates[0].date);
-    }
-  }).then(function () {
-    targetQuery = State.find({"_id":req.board.targetState});
-    targetQuery.exec(function (err, targetStates) {
-      if(!err && targetStates && targetStates.length === 1) {
-        targetDate = Date.parse(targetStates[0].date);
-      }
-    }).then(function () {
-      for(var i=0; i<numLanes; i++) {
-        lane = new Lane();
-        lane.board = req.board._id;
-        if(currentDate && targetDate) {
-          lane.startDate = new Date(currentDate + (((targetDate - currentDate)/numLanes) * i)+1);
-          lane.endDate = new Date(currentDate + (((targetDate - currentDate)/numLanes) * (i+1)));
-        }
-        lane.save(function(err, lane) {
-          if(err) {
-            if('development'===env) {
-              console.log('ERROR: ' + err);
-            }
-            return next(err);
-          }
-          req.board.lanes.push(lane._id);
-          req.board.save(function(err, board) {
-            if(err) {
-              if('development'===env) {
-                console.log('ERROR: ' + err);
-              }
-              return next(err);
-            }
-          });
-        });
-        resJson.push(lane);
-      }
-      res.json(resJson);
-    });
-  })
-});
-
-router.post('/teams/:team/boards/:board/scoreboard/lanes', function(req, res, next) {
-  var lane = new Lane(req.body);
-  lane.board = req.board._id;
-  lane.save(function(err, lane) {
-    if(err) {
-      if('development'===env) {
-        console.log('ERROR: ' + err);
-      }
-      return next(err);
-    }
-    req.board.lanes.push(lane._id);
-    req.board.save(function(err, board) {
-      if(err) {
-        if('development'===env) {
-          console.log('ERROR: ' + err);
-        }
-        return next(err);
-      }
-      res.json(lane);
-    });
-  });
-});
-
-router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane', function(req, res, next) {
-    req.lane.populate(function(err, lane) {
-        if(err) {
-            if('development'===env) {
-              console.log('ERROR: ' + err);
-            }
-            return next(err);
-        }
-
-        res.json(lane);
-    });
-});
-
-router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements', function(req, res, next) {
-  var query = Achievement.find({"lane":req.lane});
+router.get('/teams/:team/boards/:board/achievements', function(req, res, next) {
+  var query = Achievement.find({"board":req.board});
 
   query.exec(function(err, achievements) {
     if(err) {
@@ -488,9 +362,18 @@ router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements', fun
   });
 });
 
-router.post('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements', function(req, res, next) {
+router.post('/teams/:team/boards/:board/achievements', function(req, res, next) {
   var achievement = new Achievement(req.body);
-  achievement.lane = req.lane._id;
+  achievement.board = req.board._id;
+  if('development'===env) {
+    console.log('Achievement Date: ' + achievement.date);
+  }
+  if(!achievement.date && !Date.parse(achievement.date)) {
+    if('development'===env) {
+      console.log('HERE');
+    }
+    achievement.date = Date.now();
+  }
   achievement.save(function(err, achievement) {
     if(err) {
       if('development'===env) {
@@ -498,12 +381,9 @@ router.post('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements', fu
       }
       return next(err);
     }
-    req.lane.achievements.push(achievement._id);
-    req.lane.save(function(err, lane) {
+    req.board.achievements.push(achievement._id);
+    req.board.save(function(err, board) {
       if(err) {
-        if('development'===env) {
-          console.log('ERROR: ' + err);
-        }
         return next(err);
       }
       res.json(achievement);
@@ -511,96 +391,7 @@ router.post('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements', fu
   });
 });
 
-router.get('/teams/:team/boards/:board/scoreboard/lanes/:lane/achievements/:achievement', function(req, res, next) {
-    req.achievement.populate(function(err, achievement) {
-        if(err) {
-            if('development'===env) {
-              console.log('ERROR: ' + err);
-            }
-            return next(err);
-        }
-
-        res.json(achievement);
-    });
-});
-
-router.get('/teams/:team/boards/:board/scoreboard/achievements', function(req, res, next) {
-  var query = Achievement.find({"lane":{$in:req.board.lanes}});
-
-  query.exec(function(err, achievements) {
-    if(err) {
-      if('development'===env) {
-        console.log('ERROR: ' + err);
-      }
-      return next(err);
-    }
-    if(!achievements) {
-      return [];
-    }
-
-    res.json(achievements);
-  });
-});
-
-router.post('/teams/:team/boards/:board/scoreboard/achievements', function(req, res, next) {
-  var achievement = new Achievement(req.body);
-  var query = Lane.find({'board':req.board});
-  var now = Date.now();
-  var lane, start, end;
-
-  if(achievement.date) {
-    now = Date.parse(achievement.date);
-  } else {
-    achievement.date = new Date(now);
-  }
-
-  query.exec(function(err, lanes) {
-    if(err) {
-      if('development'===env) {
-        console.log('ERROR: ' + err);
-      }
-      return next(err);
-    }
-    if(!lanes) {
-      return next(new Error('No lanes found!'));
-    }
-
-    for(var i=0; lanes && i<lanes.length; i++) {
-      lane = lanes[i];
-      start = Date.parse(lane.startDate);
-      end = Date.parse(lane.endDate);
-      if(start && end && now >+ start && now <= end) {
-        achievement.lane = lane._id;
-        req.lane = lane;
-        break;
-      }
-    }
-
-    if(!req.lane) {
-      return next(new Error('Can\'t find lane for achievement'));
-    }
-
-    achievement.save(function(err, achievement) {
-      if(err) {
-        if('development'===env) {
-          console.log('ERROR: ' + err);
-        }
-        return next(err);
-      }
-      req.lane.save(function(err, lane) {
-        if(err) {
-          if('development'===env) {
-            console.log('ERROR: ' + err);
-          }
-          return next(err)
-        }
-      });
-      res.json(achievement);
-    });
-  });
-});
-
-router.get('/teams/:team/boards/:board/scoreboard/achievements/:achievement', function(req, res, next) {
+router.get('/teams/:team/boards/:board/achievements/:achievement', function(req, res, next) {
     req.achievement.populate(function(err, achievement) {
         if(err) {
             if('development'===env) {

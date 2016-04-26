@@ -4,7 +4,7 @@ var AchievementSchema = new mongoose.Schema({
   title: String,
   description: String,
   date: Date,
-  lane: {type: mongoose.Schema.Types.ObjectId, ref: 'Lane'}
+  board: {type: mongoose.Schema.Types.ObjectId, ref: 'Board'}
 });
 
 mongoose.model('Achievement', AchievementSchema);
