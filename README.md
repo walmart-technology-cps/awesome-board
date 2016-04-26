@@ -14,7 +14,7 @@ Digital solution for an Awesome Board a.k.a. Spotify Improvement Board a.k.a. To
     * `brew upgrade node`
 1. Make sure mongodb is installed
   1. Again, we recommend homebrew - type `brew install mongodb` (or one of the other options [here](https://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/))
-1. Clone the code to your workstation
+1. Clone the code to your workstation - `git clone https://github.com/walmart-technology-cps/awesome-board.git` - and cd into it - `cd awesome-board`
 1. Make sure mongodb is running by typing `mongod &`
 1. Type `npm install` - this will pull all of the dependencies found in the package.json file
 1. Start the express server by typing `npm start`
