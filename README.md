@@ -29,7 +29,8 @@ Digital solution for an Awesome Board a.k.a. Spotify Improvement Board a.k.a. To
     * `{"name": "Required and Unique"}`
 * /teams/:team
   * GET - JSON of a single specified team (or a 404 error if the provided ID does not map to a team)
-    * `{"_id":"a1phanum3ric","name":"Team Name 2","__v":2,"boards":[{"_id":"a1phanum3ric","team":"a1phanum3ric","name":"Board 1","__v":0,"scoreboard":[]},{"_id":"a1phanum3ric","team":"a1phanum3ric","name":"Board 2","__v":0,"achievements":[]}]}`
+    * `{"_id":"a1phanum3ric","name":"Team Name 2","__v":2,"boards":["a1phanum3ric","a1phanum3ric"]}`
+    * Appending `/full` to the end of the URL will fully populate the boards under the team, including their states and achievements
   * PUT - JSON with new name
     * `{"name":"New Team Name"}`
   * DELETE - No JSON required, removes the provided team (along with any boards, states, and achievements under it)
@@ -41,6 +42,7 @@ Digital solution for an Awesome Board a.k.a. Spotify Improvement Board a.k.a. To
 * /teams/:team/boards/:board
   * GET - JSON of a single specified board (or a 404 error if the provided ID does not map to a board)
     * `{"_id":"a1phanum3ric","team":"a1phanum3ric","name":"Board 1","__v":2,"currentState":"a1phanum3ric","targetState":"a1phanum3ric","awesomeState":"a1phanum3ric","achievements":["a1phanum3ric","a1phanum3ric"]}`
+    * Appending `/full` to the end of the URL will fully populate the states and achievements under the team
   * PUT - JSON with new name
     * `{"name":"New Board Name"}`
 * /teams/:team/boards/:board/states

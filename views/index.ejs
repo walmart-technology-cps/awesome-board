@@ -47,9 +47,9 @@
     <div class="row" ng-show="board">
         <div class="col-md-6 col-md-offset-3">
             <h2>{{board.name}}</h2>
-            <h3 ng-show="board.currentState">{{board.currentState}}</h3>
-            <h3 ng-show="board.targetState">{{board.targetState}}</h3>
-            <h3 ng-show="board.awesomeState">{{board.awesomeState}}</h3>
+            <h3 ng-show="board.currentState">{{board.currentState.title}}</h3>
+            <h3 ng-show="board.targetState">{{board.targetState.title}}</h3>
+            <h3 ng-show="board.awesomeState">{{board.awesomeState.title}}</h3>
         </div>
     </div>
 </script>

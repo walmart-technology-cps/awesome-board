@@ -96,6 +96,15 @@ router.param('achievement', function(req, res, next, id) {
   });
 });
 
+router.param('data', function(req, res, next, amount) {
+  if('compact' === amount || 'full' === amount) {
+    req.data = amount;
+  } else {
+    req.data = null;
+  }
+  return next();
+});
+
 router.get('/teams', function(req, res, next) {
   Team.find(function(err, teams) {
     if(err) {
@@ -128,17 +137,21 @@ router.post('/teams', function(req, res, next) {
   });
 });
 
-router.get('/teams/:team', function(req, res, next) {
-  req.team.populate('boards', function(err, team) {
-    if(err) {
-      if('development'===env) {
-        console.warn('ERROR: ' + err);
+router.get('/teams/:team/:data?', function(req, res, next) {
+  if(req.data && 'full' === req.data) {
+    req.team.populate('boards', function(err, team) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
       }
-      return next(err);
-    }
 
-    res.json(team);
-  });
+      res.json(team);
+    });
+  } else {
+    res.json(req.team);
+  }
 });
 
 router.put('/teams/:team', function(req, res, next) {
@@ -247,17 +260,44 @@ router.post('/teams/:team/boards', function(req, res, next) {
   });
 });
 
-router.get('/teams/:team/boards/:board', function(req, res, next) {
-    req.board.populate(function(err, board) {
+router.get('/teams/:team/boards/:board/:data?', function(req, res, next) {
+  if(req.data && 'full' === req.data) {
+    req.board.populate('achievements', function(err, board) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      req.board.populate('currentState', function(err, board) {
         if(err) {
+          if('development'===env) {
+            console.warn('ERROR: ' + err);
+          }
+          return next(err);
+        }
+        req.board.populate('targetState', function(err, board) {
+          if(err) {
             if('development'===env) {
               console.warn('ERROR: ' + err);
             }
             return next(err);
-        }
-
-        res.json(board);
+          }
+          req.board.populate('awesomeState', function(err, board) {
+            if(err) {
+              if('development'===env) {
+                console.warn('ERROR: ' + err);
+              }
+              return next(err);
+            }
+            res.json(board);
+          });
+        });
+      });
     });
+  } else {
+    res.json(req.board);
+  }
 });
 
 router.put('/teams/:team/boards/:board', function(req, res, next) {
