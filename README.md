@@ -65,7 +65,7 @@ Digital solution for an Awesome Board a.k.a. Spotify Improvement Board a.k.a. To
     * title and date are optional; if title is not provided, it will default to `"Target State"`
     * `{"description": "AWESOME!!!"}`
 * /teams/:team/boards/:board/states/:state
-  * GET - JSON of the requested state (404 if an ID is provided and it doesn't exist, `{}` if one of the 3 requests above are submitted and the state doesn't exist)
+  * GET - JSON of the requested state (404 if the state does not exist)
     * `{"_id":"a1phanum3ric","title":"Current State","board":"a1phanum3ric","description":"Not Great","date":"2016-04-01T04:00:00.000Z","__v":0}`
   * PUT - JSON with new title, description, and/or date (all optional not included is ignored)
     * `{"title":"New State Title", "description":"New State Description", "date":"May 1 2016 12:00:00"}`

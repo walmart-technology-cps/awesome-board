@@ -13,124 +13,132 @@ router.get('/', function(req, res, next) {
 });
 
 router.param('team', function(req, res, next, id) {
-    var query = Team.findById(id);
+  var query = Team.findById(id);
 
-    query.exec(function (err, team) {
-        if(err) {
-            if('development'===env) {
-              console.warn('ERROR: ' + err);
-            }
-            return next(err);
-        }
-        if(!team) {
-            return next(new Error('can\'t find team'));
-        }
+  query.exec(function (err, team) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    if(!team) {
+      var newErr = new Error('Can\'t find team');
+      newErr.status = 404;
+      return next(newErr);
+    }
 
-        req.team = team;
-        return next();
-    });
+    req.team = team;
+    return next();
+  });
 });
 
 router.param('board', function(req, res, next, id) {
-    var query = Board.findById(id);
+  var query = Board.findById(id);
 
-    query.exec(function (err, board) {
-        if(err) {
-            if('development'===env) {
-              console.warn('ERROR: ' + err);
-            }
-            return next(err);
-        }
-        if(!board) {
-            return next(new Error('can\'t find board'));
-        }
+  query.exec(function (err, board) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    if(!board) {
+      var newErr = new Error('Can\'t find board');
+      newErr.status = 404;
+      return next(newErr);
+    }
 
-        req.board = board;
-        return next();
-    });
+    req.board = board;
+    return next();
+  });
 });
 
 router.param('state', function(req, res, next, id) {
-    var query = State.findById(id);
+  var query = State.findById(id);
 
-    query.exec(function (err, state) {
-        if(err) {
-            if('development'===env) {
-              console.warn('ERROR: ' + err);
-            }
-            return next(err);
-        }
-        if(!state) {
-            return next(new Error('can\'t find state'));
-        }
+  query.exec(function (err, state) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    if(!state) {
+      var newErr = new Error('Can\'t find state');
+      newErr.status = 404;
+      return next(newErr);
+    }
 
-        req.state = state;
-        return next();
-    });
+    req.state = state;
+    return next();
+  });
 });
 
 router.param('achievement', function(req, res, next, id) {
-    var query = Achievement.findById(id);
+  var query = Achievement.findById(id);
 
-    query.exec(function (err, achievement) {
-        if(err) {
-            if('development'===env) {
-              console.warn('ERROR: ' + err);
-            }
-            return next(err);
-        }
-        if(!achievement) {
-            return next(new Error('can\'t find achievement'));
-        }
+  query.exec(function (err, achievement) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    if(!achievement) {
+      var newErr = new Error('Can\'t find achievement');
+      newErr.status = 404;
+      return next(newErr);
+    }
 
-        req.achievement = achievement;
-        return next();
-    });
+    req.achievement = achievement;
+    return next();
+  });
 });
 
 router.get('/teams', function(req, res, next) {
-    Team.find(function(err, teams) {
-        if(err) {
-            if('development'===env) {
-              console.warn('ERROR: ' + err);
-            }
-            return next(err);
-        }
-        res.json(teams);
-    });
+  Team.find(function(err, teams) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    res.json(teams);
+  });
 });
 
 router.post('/teams', function(req, res, next) {
-    var team = new Team(req.body);
+  var team = new Team(req.body);
 
-    team.save(function(err, team) {
-        if(err) {
-            if('development'===env) {
-              console.warn('ERROR: ' + err);
-            }
-            if(err.code === 11000) {
-              var newErr = new Error('Duplicate name not allowed');
-              newErr.status = 400;
-              return next(newErr);
-            } else {
-              return next(err);
-            }
-        }
-        res.json(team);
-    });
+  team.save(function(err, team) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      if(err.code === 11000) {
+        var newErr = new Error('Duplicate name not allowed');
+        newErr.status = 400;
+        return next(newErr);
+      } else {
+        return next(err);
+      }
+    }
+    res.json(team);
+  });
 });
 
 router.get('/teams/:team', function(req, res, next) {
-    req.team.populate('boards', function(err, team) {
-        if(err) {
-            if('development'===env) {
-              console.warn('ERROR: ' + err);
-            }
-            return next(err);
-        }
+  req.team.populate('boards', function(err, team) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
 
-        res.json(team);
-    });
+    res.json(team);
+  });
 });
 
 router.put('/teams/:team', function(req, res, next) {
@@ -332,7 +340,9 @@ router.get('/teams/:team/boards/:board/currentState', function(req, res, next) {
       return next(err);
     }
     if(!state) {
-      return {};
+      var newErr = new Error('Can\'t find current state');
+      newErr.status = 404;
+      return next(newErr);
     }
 
     res.json(state);
@@ -350,7 +360,9 @@ router.get('/teams/:team/boards/:board/targetState', function(req, res, next) {
       return next(err);
     }
     if(!state) {
-      return {};
+      var newErr = new Error('Can\'t find target state');
+      newErr.status = 404;
+      return next(newErr);
     }
 
     res.json(state);
@@ -368,7 +380,9 @@ router.get('/teams/:team/boards/:board/awesomeState', function(req, res, next) {
       return next(err);
     }
     if(!state) {
-      return {};
+      var newErr = new Error('Can\'t find awesome state');
+      newErr.status = 404;
+      return next(newErr);
     }
 
     res.json(state);
@@ -560,14 +574,14 @@ router.put('/teams/:team/boards/:board/awesomeState', function(req, res, next) {
 
 router.get('/teams/:team/boards/:board/states/:state', function(req, res, next) {
   req.state.populate(function(err, state) {
-      if(err) {
-          if('development'===env) {
-            console.warn('ERROR: ' + err);
-          }
-          return next(err);
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
       }
+      return next(err);
+    }
 
-      res.json(state);
+    res.json(state);
   });
 });
 
