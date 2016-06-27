@@ -9,7 +9,7 @@
 </head>
 <body ng-app="awesomeBoard">
 <div class="row">
-    <div class="col-md-6 col-md-offset-3">
+    <div class="col-md-6 col-md-offset-1">
         <ui-view></ui-view>
     </div>
 </div>
@@ -46,14 +46,44 @@
         <button type="submit" class="btn btn-primary">Add</button>
     </form>
     <div class="row" ng-show="board">
-        <div class="col-md-6 col-md-offset-3">
-            <h2>{{board.name}}</h2>
-            <h3 ng-show="board.currentState">{{board.currentState.title}}</h3>
-            <editable-textarea value="board.currentState.description" update="board.currentState"></editable-textarea>
-            <h3 ng-show="board.targetState">{{board.targetState.title}}</h3>
-            <editable-textarea value="board.targetState.description" update="board.targetState"></editable-textarea>
-            <h3 ng-show="board.awesomeState">{{board.awesomeState.title}}</h3>
-            <editable-textarea value="board.awesomeState.description" update="board.awesomeState"></editable-textarea>
+        <div class="col-md-12">
+            <span class="h2">
+                {{team.name}} -- <editable-board-name value="board.name" update="board" class="h2"></editable-board-name>
+            </span>
+            <br />
+            <hr />
+            <editable-state-title value="board.currentState.title" class="h3" update="board.currentState"></editable-state-title>
+            <br />
+            <editable-state-description value="board.currentState.description" update="board.currentState"></editable-state-description>
+            <br />
+            <hr />
+            <editable-state-title value="board.targetState.title" class="h3" update="board.targetState"></editable-state-title>
+            <br />
+            <editable-state-description value="board.targetState.description" update="board.targetState"></editable-state-description>
+            <br />
+            <hr />
+            <editable-state-title value="board.awesomeState.title" class="h3" update="board.awesomeState"></editable-state-title>
+            <br />
+            <editable-state-description value="board.awesomeState.description" update="board.awesomeState"></editable-state-description>
+            <br />
+            <hr />
+            <div class="h3">Achievements</div>
+            <form ng-submit="addAchievement()" style="margin-top:30px;">
+                <span style="font-size:20px;">
+                    Add an achievement:
+                </span>
+                <input type="text" class="form-control" placeholder="Title (optional)" ng-model="data.achievementTitle"></input>
+                <input type="text" class="form-control" placeholder="Description" ng-model="data.achievementDesc"></input>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+            <ul ng-show="board.achievements">
+                <li ng-repeat="a in board.achievements" data-toggle="tooltip" title="{{ a.date }}">
+                    <span ng-show="a.title">
+                        <strong>{{ a.title }}: </strong>
+                    </span>
+                    {{ a.description }}
+                </li>
+            </ul>
         </div>
     </div>
 </script>
