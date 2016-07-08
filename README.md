@@ -19,8 +19,18 @@ Digital solution for an Awesome Board a.k.a. Spotify Improvement Board a.k.a. To
 1. Clone the code to your workstation - `git clone https://github.com/walmart-technology-cps/awesome-board.git` - and cd into it - `cd awesome-board`
 1. Make sure mongodb is running by typing `mongod &`
 1. Type `npm install` - this will pull all of the dependencies found in the package.json file
-1. Start the express server by typing `npm start`
+1. Start the express server by typing `npm run board`
   * The UI will be accessible via [http://localhost:3000/#/home.html](http://localhost:3000/#/home.html)
+  * To stop the server, press <kbd>control</kbd> + <kbd>c</kbd>
+1. Start the awesome-hubot by typing `npm run hubot`
+  * To exit awesome-hubot CLI, type `exit`
+1. Start the awesome-hubot CLI for development with express server running backend by typing `npm run dev`
+  * To exit awesome-hubot CLI, type `exit`
+  * To stop the server, press <kbd>control</kbd> + <kbd>c</kbd>
+1. To start the awesome-hubot Slack connection with express server running backend, first you need to replace `{token_goes_here}` with your slack API token, it is located in /bin/hubot-slack file.
+Then type `npm start` to start.
+  * To exit awesome-hubot slack connection, type `exit`
+  * To stop the server, press <kbd>control</kbd> + <kbd>c</kbd>
 
 ## ReST API
 **The ReST API has been implemented thusly (accessible from root [http://localhost:3000/](http://localhost:3000/):**

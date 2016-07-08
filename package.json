@@ -3,8 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "bash ./bin/start-slack",
+    "dev": "bash ./bin/start-dev",
+    "board": "node ./bin/www",
+    "hubot": "./bin/hubot"
   },
+  "//": "For depencencies, all packages starts with hubot are belonging to Hubot. Others are for awesome-board",
   "dependencies": {
     "body-parser": "~1.13.2",
     "debug": "~2.2.0",
@@ -12,6 +16,12 @@
     "express": "~4.13.1",
     "mongoose": "^4.4.12",
     "morgan": "~1.6.1",
-    "serve-favicon": "~2.3.0"
+    "serve-favicon": "~2.3.0",
+    "hubot": "^2.19.0",
+    "hubot-help": "^0.2.0",
+    "hubot-slack": "^3.4.2"
+  },
+  "engines": {
+    "node": "0.10.x"
   }
 }
