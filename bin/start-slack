@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+# run awesome-board app server backend.
+bash bin/board &
+bash bin/hubot-slack
+
+wait
