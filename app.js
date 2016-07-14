@@ -60,6 +60,6 @@ app.use(function(err, req, res, next) {
   });
 });
 
-mongoose.connect('mongodb://localhost/board');
+mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/board');
 
 module.exports = app;
