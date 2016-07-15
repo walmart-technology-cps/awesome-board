@@ -1,1 +1,1 @@
-bash ./bin/start-slack
+npm start
