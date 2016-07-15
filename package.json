@@ -1,9 +1,9 @@
 {
   "name": "awesome-board",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
-    "start": "bash ./bin/start-slack",
+    "start": "node ./bin/www && node ./bin/hubot-slack",
     "dev": "bash ./bin/start-dev",
     "board": "node ./bin/www",
     "hubot": "./bin/hubot"
@@ -14,12 +14,12 @@
     "debug": "~2.2.0",
     "ejs": "~2.3.3",
     "express": "~4.13.1",
-    "mongoose": "^4.4.12",
-    "morgan": "~1.6.1",
-    "serve-favicon": "~2.3.0",
     "hubot": "^2.19.0",
     "hubot-help": "^0.2.0",
-    "hubot-slack": "^3.4.2"
+    "hubot-slack": "^3.4.2",
+    "mongoose": "^4.4.12",
+    "morgan": "~1.6.1",
+    "serve-favicon": "~2.3.0"
   },
   "engines": {
     "node": "0.10.x"

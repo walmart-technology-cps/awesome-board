@@ -3,7 +3,7 @@
 set -e
 
 # run awesome-board app server backend.
-bash bin/board &
+node bin/www &
 bash bin/hubot-slack
 
 wait
