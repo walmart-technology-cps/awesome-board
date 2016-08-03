@@ -9,7 +9,7 @@
 #   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
 module.exports = (robot) ->
-  robot.hear /who('| i)s number one/i, (msg) ->
+  robot.hear /who(’|'| i)s number one/i, (msg) ->
     msg.reply "The Customer! Always! Huh!"
 
 
