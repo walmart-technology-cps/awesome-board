@@ -34,6 +34,7 @@ Then type `npm start` to start.
 
 ## Parameterization
 There are several values that have hard-coded default values, but can be modified by parameterization. If you want to change these values without hardcoding them, use the appropriate environment variable below.
+
 | Environment Variable | What it means                                                                                            | Default Value             | Where it's used                      |
 | -------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------- | ------------------------------------ |
 | MONGODB_URI          | URI to the mongodb instance used for persistence                                                         | mongodb://localhost/board | app.js                               |
