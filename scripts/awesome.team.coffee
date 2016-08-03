@@ -33,12 +33,14 @@ module.exports = (robot) ->
   robot.hear /make (.*) (my|our) team/i, (msg) ->
     exists = false
     if robot.brain.team is undefined
-      robot.brain.team = {}
+      robot.brain.team = []
+    if robot.brain.team[msg.message.room] is undefined
+      robot.brain.team[msg.message.room] = {}
     msg.http($baseurl+"/teams")
     .get() (err, res, body) ->
       for team in JSON.parse body
         if team.name.toUpperCase() == msg.match[1].toUpperCase()
-          robot.brain.team = team
+          robot.brain.team[msg.message.room] = team
           exists = true
           msg.reply "Okay, your team name is '"+team.name+"'"
           break
@@ -46,43 +48,45 @@ module.exports = (robot) ->
         msg.reply "I'm sorry, that team does not yet exist yet."
 
   robot.hear /what(’|'| i)s (our|my) team/i, (msg) ->
-    if robot.brain.team is undefined
+    if robot.brain.team is undefined or robot.brain.team[msg.message.room] is undefined
       msg.reply "I don't know!!!"
     else
-      msg.reply "Your team name is '" + robot.brain.team.name + "'"
+      msg.reply "Your team name is '" + robot.brain.team[msg.message.room].name + "'"
 
   robot.hear /(list|all|give me|show me) the boards/i, (msg) ->
-    if robot.brain.team is undefined
+    if robot.brain.team is undefined or robot.brain.team[msg.message.room] is undefined
       msg.reply "You haven't picked a team yet!"
     else
-      msg.http($baseurl+"/teams/"+robot.brain.team._id+"/boards")
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards")
       .get() (err, res, body) ->
         for board in JSON.parse body
           msg.send board.name
 
   robot.hear /add board (.*)/i, (msg) ->
-    if robot.brain.team is undefined
+    if robot.brain.team is undefined or robot.brain.team[msg.message.room] is undefined
       msg.reply "You haven't picked a team yet!"
     data = JSON.stringify({
       name: msg.match[1]
     })
-    msg.http($baseurl+"/teams/"+robot.brain.team._id+"/boards")
+    msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards")
     .header('Content-Type', 'application/json')
     .post(data) (err, res, body) ->
       msg.send "Board Added!"
 
   robot.hear /make (.*) (my|our) board/i, (msg) ->
-    if robot.brain.team is undefined
+    if robot.brain.team is undefined or robot.brain.team[msg.message.room] is undefined
       msg.reply "You haven't picked a team yet!"
       exit
     exists = false
     if robot.brain.board is undefined
-      robot.brain.board = {}
-    msg.http($baseurl+"/teams/"+robot.brain.team._id+"/boards")
+      robot.brain.board = []
+    if robot.brain.board[msg.message.room] is undefined
+      robot.brain.board[msg.message.room] = {}
+    msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards")
     .get() (err, res, body) ->
       for board in JSON.parse body
         if board.name.toUpperCase() == msg.match[1].toUpperCase()
-          robot.brain.board = board
+          robot.brain.board[msg.message.room] = board
           exists = true
           msg.reply "Okay, your board name is '" + board.name + "'"
           break
@@ -90,16 +94,16 @@ module.exports = (robot) ->
         msg.reply "I'm sorry, that board does not exist yet."
 
   robot.hear /what(’|'| i)s (our|my) board/i, (msg) ->
-    if robot.brain.board is undefined
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
       msg.reply "I don't know!!!"
     else
-      msg.reply "Your board name is '" + robot.brain.board.name + "'"
+      msg.reply "Your board name is '" + robot.brain.board[msg.message.room].name + "'"
 
   robot.hear /what(’|'| i)s (our|my) (.*) state/i, (msg) ->
-    if robot.brain.board is undefined
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
       msg.reply "I don't know!!! (you haven't set the board yet)"
       exit
-    msg.http($baseurl+"/teams/"+robot.brain.team._id+"/boards/"+robot.brain.board._id+"/"+msg.match[3].toLowerCase()+"State")
+    msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/"+msg.match[3].toLowerCase()+"State")
     .get() (err, res, body) ->
       state = JSON.parse body
       msg.send state.description
