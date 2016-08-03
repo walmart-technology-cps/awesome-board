@@ -30,7 +30,7 @@ module.exports = (robot) ->
     .post(data) (err, res, body) ->
       msg.send "Team Added!"
 
-  robot.hear /make (.*) our team/i, (msg) ->
+  robot.hear /make (.*) (my|our) team/i, (msg) ->
     exists = false
     if robot.brain.team is undefined
       robot.brain.team = {}
@@ -71,7 +71,7 @@ module.exports = (robot) ->
     .post(data) (err, res, body) ->
       msg.send "Board Added!"
 
-  robot.hear /make (.*) our board/i, (msg) ->
+  robot.hear /make (.*) (my|our) board/i, (msg) ->
     if robot.brain.team is undefined
       msg.reply "You haven't picked a team yet!"
       exit
