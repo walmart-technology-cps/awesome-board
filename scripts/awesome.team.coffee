@@ -13,7 +13,7 @@ module.exports = (robot) ->
 
 
   robot.hear /who(’|'| i)s awesome/i, (msg) ->
-    msg.send msg.random youre_awesome
+    msg.reply msg.random youre_awesome
 
   robot.hear /give me all the teams/i, (msg) ->
     msg.http($baseurl+"/teams")
