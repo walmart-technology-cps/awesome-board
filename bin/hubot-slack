@@ -1,19 +1,13 @@
-#!/usr/bin/env node
+#!/bin/sh
 
-process.env.HUBOT_SLACK_TOKEN = process.env.SLACK_TOKEN || '{token_goes_here}';
-process.env.PATH = "node_modules/.bin:node_modules/hubot/node_modules/.bin" + process.env.PATH;
+set -e
 
-const spawn = require('child_process').spawn;
-const hubot = spawn('./bin/hubot', ['--adapter', 'slack']);
+export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
+if [ "$SLACK_TOKEN" != "" ];
+then
+  export HUBOT_SLACK_TOKEN="$SLACK_TOKEN"
+else
+  export HUBOT_SLACK_TOKEN="{xoxb-token-goes-here}"
+fi
 
-hubot.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
-});
-
-hubot.stderr.on('data', (data) => {
-  console.log(`stderr: ${data}`);
-});
-
-hubot.on('close', (code) => {
-  console.log(`child process exited with code ${code}`);
-});
+./bin/hubot --adapter slack
