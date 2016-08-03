@@ -32,6 +32,15 @@ Then type `npm start` to start.
   * To exit awesome-hubot slack connection, type `exit`
   * To stop the server, press <kbd>control</kbd> + <kbd>c</kbd>
 
+## Parameterization
+There are several values that have hard-coded default values, but can be modified by parameterization. If you want to change these values without hardcoding them, use the appropriate environment variable below.
+| Environment Variable | What it means                                                                                            | Default Value             | Where it's used                      |
+| -------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------- | ------------------------------------ |
+| MONGODB_URI          | URI to the mongodb instance used for persistence                                                         | mongodb://localhost/board | app.js                               |
+| PORT                 | Port number used to connect to the express server                                                        | 3000                      | bin/www, scripts/awesome.team.coffee |
+| SLACK_TOKEN          | Token provided by slack to associate this app's hubot-based bot with a registered bot on your slack team | {xoxb-token-goes-here}    | bin/hubot-slack                      |
+| AWESOME_API_URL      | Base URL for the Digital Awesome Board API that the slack bot will be using                              | http://localhost          | scripts/awesome.team.coffee          |
+
 ## ReST API
 **The ReST API has been implemented thusly (accessible from root [http://localhost:3000/](http://localhost:3000/):**
 * /teams
