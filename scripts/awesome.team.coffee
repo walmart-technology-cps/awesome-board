@@ -94,3 +94,12 @@ module.exports = (robot) ->
       msg.reply "I don't know!!!"
     else
       msg.reply "Your board name is '" + robot.brain.board.name + "'"
+
+  robot.hear /what(’|'| i)s (our|my) (.*) state/i, (msg) ->
+    if robot.brain.board is undefined
+      msg.reply "I don't know!!! (you haven't set the board yet)"
+      exit
+    msg.http($baseurl+"/teams/"+robot.brain.team._id+"/boards/"+robot.brain.board._id+"/"+msg.match[3].toLowerCase()+"State")
+    .get() (err, res, body) ->
+      state = JSON.parse body
+      msg.send state.description
