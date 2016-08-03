@@ -11,7 +11,7 @@ module.exports = (robot) ->
     "http://i.imgur.com/aimsF.jpg"
   ]
 
-  robot.hear /who\'s awesome/i, (msg) ->
+  robot.hear /"who's awesome"/i, (msg) ->
     msg.reply msg.random youre_awesome
 
   robot.hear /give me all the teams/i, (msg) ->
