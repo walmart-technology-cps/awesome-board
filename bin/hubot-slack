@@ -7,7 +7,7 @@ if [ "$SLACK_TOKEN" != "" ];
 then
   export HUBOT_SLACK_TOKEN="$SLACK_TOKEN"
 else
-  export HUBOT_SLACK_TOKEN="{xoxb-token-goes-here}"
+  export HUBOT_SLACK_TOKEN="xoxb-54973561411-UExPXc8fpUjRPdeaiJclUEYu"
 fi
 
 ./bin/hubot --adapter slack

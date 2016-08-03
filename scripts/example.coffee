@@ -9,8 +9,8 @@
 #   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
 module.exports = (robot) ->
-  robot.hear /who is number one/i, (msg) ->
-    msg.send "The Customer! Always! Huh!"
+  robot.hear /who('| i)s number one/i, (msg) ->
+    msg.reply "The Customer! Always! Huh!"
 
 
   # robot.hear /badger/i, (res) ->
