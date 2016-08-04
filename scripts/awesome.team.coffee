@@ -76,22 +76,22 @@ module.exports = (robot) ->
   robot.hear /make (.*) (my|our) board/i, (msg) ->
     if robot.brain.team is undefined or robot.brain.team[msg.message.room] is undefined
       msg.reply "You haven't picked a team yet!"
-      exit
-    exists = false
-    if robot.brain.board is undefined
-      robot.brain.board = []
-    if robot.brain.board[msg.message.room] is undefined
-      robot.brain.board[msg.message.room] = {}
-    msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards")
-    .get() (err, res, body) ->
-      for board in JSON.parse body
-        if board.name.toUpperCase() == msg.match[1].toUpperCase()
-          robot.brain.board[msg.message.room] = board
-          exists = true
-          msg.reply "Okay, your board name is '" + board.name + "'"
-          break
-      if exists != true
-        msg.reply "I'm sorry, that board does not exist yet."
+    else
+      exists = false
+      if robot.brain.board is undefined
+        robot.brain.board = []
+      if robot.brain.board[msg.message.room] is undefined
+        robot.brain.board[msg.message.room] = {}
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards")
+      .get() (err, res, body) ->
+        for board in JSON.parse body
+          if board.name.toUpperCase() == msg.match[1].toUpperCase()
+            robot.brain.board[msg.message.room] = board
+            exists = true
+            msg.reply "Okay, your board name is '" + board.name + "'"
+            break
+        if exists != true
+          msg.reply "I'm sorry, that board does not exist yet."
 
   robot.hear /what(’|'| i)s (our|my) board/i, (msg) ->
     if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
@@ -102,8 +102,111 @@ module.exports = (robot) ->
   robot.hear /what(’|'| i)s (our|my) (.*) state/i, (msg) ->
     if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
       msg.reply "I don't know!!! (you haven't set the board yet)"
-      exit
-    msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/"+msg.match[3].toLowerCase()+"State")
-    .get() (err, res, body) ->
-      state = JSON.parse body
-      msg.send state.description
+    else
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/"+msg.match[3].toLowerCase()+"State")
+      .get() (err, res, body) ->
+        state = JSON.parse body
+        msg.send state.description
+
+  robot.hear /where are we now|where did we start/i, (msg) ->
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
+      msg.reply "I don't know!!! (you haven't set the board yet)"
+    else
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/currentState")
+      .get() (err, res, body) ->
+        state = JSON.parse body
+        msg.send state.description
+
+  robot.hear /what(’|'| i)s (my|our) (target|goal)/i, (msg) ->
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
+      msg.reply "I don't know!!! (you haven't set the board yet)"
+    else
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/targetState")
+      .get() (err, res, body) ->
+        state = JSON.parse body
+        msg.send state.description
+
+  robot.hear /what(’|'| i)s awesome|what does awesome look like/i, (msg) ->
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
+      msg.reply "I don't know!!! (you haven't set the board yet)"
+    else
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/awesomeState")
+      .get() (err, res, body) ->
+        state = JSON.parse body
+        msg.send state.description
+
+  robot.respond /set (our|my) current state to (.*)/i, (msg) ->
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
+      msg.reply "I can't do that until you pick a board!"
+    else
+      data = JSON.stringify({
+        description: msg.match[2]
+      })
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/currentState")
+      .header('Content-Type', 'application/json')
+      .put(data) (err, res, body) ->
+        msg.send "Current State updated!"
+        msg.send "'"+msg.match[2]+"'"
+
+  robot.respond /set (our|my) target state to (.*)/i, (msg) ->
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
+      msg.reply "I can't do that until you pick a board!"
+    else
+      data = JSON.stringify({
+        description: msg.match[2]
+      })
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/targetState")
+      .header('Content-Type', 'application/json')
+      .put(data) (err, res, body) ->
+        msg.send "Current State updated!"
+        msg.send "'"+msg.match[2]+"'"
+
+  robot.respond /set (our|my) awesome state to (.*)/i, (msg) ->
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
+      msg.reply "I can't do that until you pick a board!"
+    else
+      data = JSON.stringify({
+        description: msg.match[2]
+      })
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/awesomeState")
+      .header('Content-Type', 'application/json')
+      .put(data) (err, res, body) ->
+        msg.send "Current State updated!"
+        msg.send "'"+msg.match[2]+"'"
+
+  robot.respond /define awesome as (.*)/i, (msg) ->
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
+      msg.reply "I can't do that until you pick a board!"
+    else
+      data = JSON.stringify({
+        description: msg.match[1]
+      })
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/awesomeState")
+      .header('Content-Type', 'application/json')
+      .put(data) (err, res, body) ->
+        msg.send "Current State updated!"
+        msg.send "'"+msg.match[1]+"'"
+
+  robot.respond /(Check it out!|Awesome!|Kudos!|Sweet!|Excellent!|Woohoo!|Achievement Unlocked!) (.*)/i, (msg) ->
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
+      msg.reply "I can't do that until you pick a board!"
+    else
+      data = JSON.stringify({
+        title: msg.match[1],
+        description: msg.match[2]
+      })
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/achievements")
+      .header('Content-Type', 'application/json')
+      .post(data) (err, res, body) ->
+        msg.send "Achievement added!"
+        msg.send "'"+msg.match[2]+"'"
+
+  robot.hear /what (have we done|did we do|have we accomplished|are our achievements)/i, (msg) ->
+    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
+      msg.reply "I can't do that until you pick a board!"
+    else
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/achievements")
+      .get() (err, res, body) ->
+        msg.send "Here are our achievements so far:"
+        for achievement in JSON.parse body
+          msg.send achievement.description
