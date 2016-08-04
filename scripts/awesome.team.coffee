@@ -1,3 +1,18 @@
+# Commands:
+#   Who's Awesome? - Get a pic telling you who's awesome
+#   Add team {teamname} - Adds a team with the name {teamname}
+#   List the teams - Lists the available teams
+#   Make {teamname} our team - Associates the requested team with the current channel
+#   What's our team? - Provides the name of the team associated with the channel
+#   Add board {boardname} - Adds a board to the team with the name {boardname} (requires a team be set for the channel)
+#   List the boards - Lists the available boards for the team (requires a team be set for the channel)
+#   Make {boardname} our board - Associates the requested board with the current channel (requires a team be set for the channel)
+#   What's our board? - Provides the name of the board associated with the channel (requires a team be set for the channel)
+#   What's our current/target/awesome state? - Provides the description for the requested state (requires a team and board be set for the channel)
+#   Set our current/target/awesome state to {description} - Sets the description for the requested state (requires a team and board be set for the channel)
+#   What are our achievements? - Lists the achievements on the board (requires a team and board be set for the channel)
+#   @{awesomebotname} Awesome! {achievement} - Adds the provided achievement to the board (requires a team and board be set for the channel, must be addressing the bot to avoid accidental achievement creation)
+
 module.exports = (robot) ->
 
   $baseurl = process.env.AWESOME_API_URL || "http://localhost:"+process.env.PORT
@@ -10,7 +25,6 @@ module.exports = (robot) ->
     "https://sheerepiphany.files.wordpress.com/2015/04/a.jpg",
     "http://i.imgur.com/aimsF.jpg"
   ]
-
 
   robot.hear /who(’|'| i)s awesome/i, (msg) ->
     msg.reply msg.random youre_awesome
@@ -135,44 +149,18 @@ module.exports = (robot) ->
         state = JSON.parse body
         msg.send state.description
 
-  robot.respond /set (our|my) current state to (.*)/i, (msg) ->
+  robot.respond /set (our|my) (.*) state to (.*)/i, (msg) ->
     if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
       msg.reply "I can't do that until you pick a board!"
     else
       data = JSON.stringify({
-        description: msg.match[2]
+        description: msg.match[3]
       })
-      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/currentState")
+      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/"+msg.match[2].toLowerCase()+"State")
       .header('Content-Type', 'application/json')
       .put(data) (err, res, body) ->
-        msg.send "Current State updated!"
-        msg.send "'"+msg.match[2]+"'"
-
-  robot.respond /set (our|my) target state to (.*)/i, (msg) ->
-    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
-      msg.reply "I can't do that until you pick a board!"
-    else
-      data = JSON.stringify({
-        description: msg.match[2]
-      })
-      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/targetState")
-      .header('Content-Type', 'application/json')
-      .put(data) (err, res, body) ->
-        msg.send "Current State updated!"
-        msg.send "'"+msg.match[2]+"'"
-
-  robot.respond /set (our|my) awesome state to (.*)/i, (msg) ->
-    if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
-      msg.reply "I can't do that until you pick a board!"
-    else
-      data = JSON.stringify({
-        description: msg.match[2]
-      })
-      msg.http($baseurl+"/teams/"+robot.brain.team[msg.message.room]._id+"/boards/"+robot.brain.board[msg.message.room]._id+"/awesomeState")
-      .header('Content-Type', 'application/json')
-      .put(data) (err, res, body) ->
-        msg.send "Current State updated!"
-        msg.send "'"+msg.match[2]+"'"
+        msg.send msg.match[2]+" state updated!"
+        msg.send "'"+msg.match[3]+"'"
 
   robot.respond /define awesome as (.*)/i, (msg) ->
     if robot.brain.board is undefined or robot.brain.board[msg.message.room] is undefined
