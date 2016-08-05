@@ -255,7 +255,69 @@ router.post('/teams/:team/boards', function(req, res, next) {
       if(err) {
         return next(err);
       }
-      res.json(board);
+      return board;
+    });
+  })
+  .then(function(board) {
+    if(undefined === board.currentState) {
+      board.currentState = new State({
+        "title" : "Current State",
+        "description" : "Describe the Current State"
+      });
+    }
+    board.currentState.board = board._id;
+    board.currentState.save(function(err, state) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      board.currentState = state._id;
+    });
+    return board;
+  })
+  .then(function(board) {
+    if(undefined === board.targetState) {
+      board.targetState = new State({
+        "title" : "Target State",
+        "description" : "Describe your Target State"
+      });
+    }
+    board.targetState.board = board._id;
+    board.targetState.save(function(err, state) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      board.targetState = state._id;
+    });
+    return board;
+  })
+  .then(function(board) {
+    if(undefined === board.awesomeState) {
+      board.awesomeState = new State({
+        "title" : "Definition of Awesome",
+        "description" : "Define Awesome"
+      });
+    }
+    board.awesomeState.board = board._id;
+    board.awesomeState.save(function(err, state) {
+      if(err) {
+        if('development'===env) {
+          console.warn('ERROR: ' + err);
+        }
+        return next(err);
+      }
+      board.awesomeState = state._id;
+      board.save(function(err, board) {
+        if(err) {
+          return next(err);
+        }
+        res.json(board);
+      });
     });
   });
 });
