@@ -206,10 +206,10 @@ app.directive( 'editableStateDescription', function() {
   return {
     restrict: 'E',
     scope: { value: '=', update: '=' },
-    template: '<span ng-click="edit()" ng-bind="value"></span><textarea ng-model="value"></textarea>',
+    template: '<textarea ng-click="edit()" ng-model="value">',
     link: function ( $scope, element, attrs ) {
       // Let's get a reference to the input element, as we'll want to reference it.
-      var inputElement = angular.element( element.children()[1] );
+      var inputElement = angular.element( element.children()[0] );
 
       // This directive should have a set class so we can style it.
       element.addClass( 'edit-in-place' );

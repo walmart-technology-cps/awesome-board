@@ -8,82 +8,107 @@
     <script src="/javascripts/angularApp.js"></script>
 </head>
 <body ng-app="awesomeBoard">
-<div class="row">
-    <div class="col-md-10 col-md-offset-1">
-        <ui-view></ui-view>
-    </div>
-</div>
+  <ui-view></ui-view>
 <script type="text/ng-template" id="/home.html">
-    <div class="page-header">
-        <h1>Awesome Board!</h1>
+    <div class="page-header center">
+        <h1 ng-hide="board">Awesome Board!</h1>
+        <span ng-show="board">
+            <!--<label class="team-name">Team:</label>-->
+            <select name="teamSelect" id="teamSelect" ng-model="data.teamSelect" ng-change="getTeam()"
+                    ng-options="team.name for team in teams | orderBy: 'name'" class="form-control-inline input-lg" style="min-width: 10vw; font-weight: bold; font-size: 3vh;">
+                <option value="">Add a new team</option>
+            </select>
+            <label class="board-name">--</label>
+            <!--<editable-board-name value="board.name" update="board" class="form-control-inline input-lg"></editable-board-name>-->
+            <select name="boardSelect" id="boardSelect" ng-disabled="!team" ng-model="data.boardSelect" ng-change="getBoard()"
+                    ng-options="board.name for board in boards | orderBy: 'name'" class="form-control-inline input-lg" style="min-width: 10vw; font-weight: bold; font-size: 3vh;">
+                <option value="">Add a new board</option>
+            </select>
+        </span>
     </div>
-    <form name="teamSelectForm">
-        <label for="teamSelect">Select Team:</label>
-        <select name="teamSelect" id="teamSelect" ng-model="data.teamSelect" ng-change="getTeam()"
-                ng-options="team.name for team in teams | orderBy: 'name'" class="lead">
-            <option value="">---Please Select Team or Add New Below---</option>
-        </select>
-    </form>
-    <form name="boardSelectForm">
-        <label for="boardSelect">Select Board:</label>
-        <select name="boardSelect" id="boardSelect" ng-disabled="!team" ng-model="data.boardSelect" ng-change="getBoard()"
-                ng-options="board.name for board in boards | orderBy: 'name'" class="lead">
-            <option value="">---Please Select Board or Add New Below---</option>
-        </select>
-    </form>
-    <form ng-submit="addTeam()" ng-hide="data.teamSelect" style="margin-top:30px;">
-        <span style="font-size:20px;">
-            Add a new team:
-        </span>
-        <input type="text" class="form-control" placeholder="Team Name" ng-model="teamName"></input>
-        <button type="submit" class="btn btn-primary">Add</button>
-    </form>
-    <form ng-submit="addBoard()" ng-hide="!data.teamSelect || data.boardSelect" style="margin-top:30px;">
-        <span style="font-size:20px;">
-            Add a new board:
-        </span>
-        <input type="text" class="form-control" placeholder="Board Name" ng-model="boardName"></input>
-        <button type="submit" class="btn btn-primary">Add</button>
-    </form>
-    <div class="row" ng-show="board">
-        <div class="col-md-12">
-            <span class="h2">
-                {{team.name}} -- <editable-board-name value="board.name" update="board" class="h2"></editable-board-name>
+    <div class="col-md-12 form-inline" ng-hide="board">
+        <form name="teamSelectForm">
+            <label for="teamSelect">Select Team:</label>
+            <select name="teamSelect" id="teamSelect" ng-model="data.teamSelect" ng-change="getTeam()"
+                    ng-options="team.name for team in teams | orderBy: 'name'" class="form-control">
+                <option value="">---Please Select Team or Add New Below---</option>
+            </select>
+        </form>
+        <form name="boardSelectForm">
+            <label for="boardSelect">Select Board:</label>
+            <select name="boardSelect" id="boardSelect" ng-disabled="!team" ng-model="data.boardSelect" ng-change="getBoard()"
+                    ng-options="board.name for board in boards | orderBy: 'name'" class="form-control">
+                <option value="">---Please Select Board or Add New Below---</option>
+            </select>
+        </form>
+        <form ng-submit="addTeam()" ng-hide="data.teamSelect">
+            <lable style="font-weight: bold">
+                Add A New Team:
+            </lable>
+            <input type="text" class="form-control" placeholder="Team Name" ng-model="teamName">
+            <button type="submit" class="form-control btn btn-primary">Add</button>
+        </form>
+        <form ng-submit="addBoard()" ng-hide="!data.teamSelect || data.boardSelect">
+            <span style="font-size:20px;">
+                Add A New Board:
             </span>
-            <br />
-            <hr />
-            <editable-state-title value="board.currentState.title" class="h3" update="board.currentState"></editable-state-title>
-            <br />
-            <editable-state-description value="board.currentState.description" update="board.currentState"></editable-state-description>
-            <br />
-            <hr />
-            <editable-state-title value="board.targetState.title" class="h3" update="board.targetState"></editable-state-title>
-            <br />
-            <editable-state-description value="board.targetState.description" update="board.targetState"></editable-state-description>
-            <br />
-            <hr />
-            <editable-state-title value="board.awesomeState.title" class="h3" update="board.awesomeState"></editable-state-title>
-            <br />
-            <editable-state-description value="board.awesomeState.description" update="board.awesomeState"></editable-state-description>
-            <br />
-            <hr />
-            <div class="h3">Achievements</div>
-            <form ng-submit="addAchievement()" style="margin-top:30px;">
-                <span style="font-size:20px;">
+            <input type="text" class="form-control" placeholder="Board Name" ng-model="boardName">
+            <button type="submit" class="form-control btn btn-primary">Add</button>
+        </form>
+    </div>
+    <div class="col-md-12">
+        <div class="row" ng-show="board">
+            <div class="col-md-6 state">
+                <div class="center">
+                    <editable-state-title value="board.currentState.title" class="h3 current-title" update="board.currentState"></editable-state-title>
+                </div>
+                <br />
+                <editable-state-description value="board.currentState.description" class="current-body" update="board.currentState"></editable-state-description>
+                <br />
+                <hr />
+            </div>
+            <div class="col-md-6 state target">
+                <div class="center">
+                    <editable-state-title value="board.targetState.title" class="h3 target-title" update="board.targetState"></editable-state-title>
+                </div>
+                <br />
+                <editable-state-description value="board.targetState.description" class="target-body" update="board.targetState"></editable-state-description>
+                <br />
+                <hr />
+            </div>
+            <div class="col-md-6 state awesome">
+                <div class="center">
+                    <editable-state-title value="board.awesomeState.title" class="h3 awesome-title" update="board.awesomeState"></editable-state-title>
+                </div>
+                <br />
+                <editable-state-description value="board.awesomeState.description" class="awesome-body" update="board.awesomeState"></editable-state-description>
+                <br />
+                <hr />
+            </div>
+            <div class="col-md-6 state achievement">
+                <div class="center">
+                    <span class="h3 achievement-title">Scoreboard</span>
+                </div>
+                <br>
+                <ul ng-show="board.achievements" class="achievement-body">
+                    <li ng-repeat="a in board.achievements" data-toggle="tooltip" title="{{ a.date }}">
+                        <span ng-show="a.title">
+                            <strong>{{ a.title }}: </strong>
+                        </span>
+                        {{ a.description }}
+                    </li>
+                </ul>
+                <span class="achievement-body">
                     Add an achievement:
                 </span>
-                <input type="text" class="form-control" placeholder="Title (optional)" ng-model="data.achievementTitle"></input>
-                <input type="text" class="form-control" placeholder="Description" ng-model="data.achievementDesc"></input>
-                <button type="submit" class="btn btn-primary">Add</button>
-            </form>
-            <ul ng-show="board.achievements">
-                <li ng-repeat="a in board.achievements" data-toggle="tooltip" title="{{ a.date }}">
-                    <span ng-show="a.title">
-                        <strong>{{ a.title }}: </strong>
-                    </span>
-                    {{ a.description }}
-                </li>
-            </ul>
+                <form ng-submit="addAchievement()" class="form-group">
+                    <div class="col-md-12">
+                        <input class="form-control col-md-4" placeholder="Title (optional)" ng-model="data.achievementTitle">
+                        <input type="text" class="form-control col-md-6" placeholder="Description" ng-model="data.achievementDesc">
+                        <button type="submit" class="form-control btn btn-primary col-md-2">Add</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </script>

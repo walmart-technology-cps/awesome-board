@@ -1,17 +1,24 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  margin: -4vh 0vw;
+  padding: 2vw;
+  font: 1vw "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
-  color: #00B7FF;
+  color: #007dc6;
 }
 
 .edit-in-place span {
   cursor: pointer;
 }
 
-.edit-in-place textarea,
+.edit-in-place textarea {
+  border: 0;
+  height: 30vh;
+  width: 40vw;
+  cursor: pointer;
+}
+
 .edit-in-place input {
   display: none;
 }
@@ -20,7 +27,78 @@ a {
   display: none;
 }
 
-.edit-in-place.active textarea,
+.edit-in-place.active textarea {
+  display: inline-block;
+}
+
 .edit-in-place.active input {
   display: inline-block;
+}
+
+.team-name {
+  font-weight: normal;
+  font-size: 3vh;
+  vertical-align: middle;
+  display: inline-block;
+  padding: 1vw;
+}
+
+.board-name {
+  font-weight: normal;
+  font-size: 3vh;
+  vertical-align: middle;
+  display: inline-block;
+  padding: 1vw;
+}
+
+.state {
+  height: 40vh;
+  border: 1vw;
+  padding: 1vw;
+}
+
+.state .current-title {
+  text-align: center;;
+  color: #e62b1e;
+  text-decoration: underline;
+}
+
+.state .current-body {
+  color: #e62b1e;
+}
+
+.state .target-title {
+  text-align: center;
+  color: #007dc6;
+  text-decoration: underline;
+}
+
+.state .target-body {
+  color: #007dc6;
+}
+
+.state .awesome-title {
+  text-align: center;
+  color: #76c043;
+  text-decoration: underline;
+}
+
+.state .awesome-body {
+  text-align: center;
+  color: #76c043;
+  text-decoration: underline;
+}
+
+.state .achievement-title {
+  text-align: center;
+  color: #f47321;
+  text-decoration: underline;
+}
+
+.state .achievement-body {
+  color: #f47321;
+}
+
+.center {
+  text-align: center;
 }
