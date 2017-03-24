@@ -16,6 +16,7 @@
 module.exports = (robot) ->
 
   $baseurl = process.env.AWESOME_API_URL || "http://localhost:"+process.env.PORT
+  CronJob = require('cron').CronJob
 
   youre_awesome = [
     "http://who-is-awesome.com/who-is-awesome.jpg",
@@ -25,6 +26,12 @@ module.exports = (robot) ->
     "https://sheerepiphany.files.wordpress.com/2015/04/a.jpg",
     "http://i.imgur.com/aimsF.jpg"
   ]
+
+  achievementReminder = new CronJob '00 00 16 * * 5', ->
+    for room, board of robot.brain.data._private.board
+      robot.messageRoom room, "Hello " + robot.brain.data._private.team[room].name + "!"
+      robot.messageRoom room, "Are there any achievements from the week that need to be added to your board '" + board.name + "'?"
+  , null, true, 'America/New_York'
 
   robot.hear /who(’|'| i)s awesome/i, (msg) ->
     msg.reply msg.random youre_awesome
