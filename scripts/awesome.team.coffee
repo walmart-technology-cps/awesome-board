@@ -30,7 +30,7 @@ module.exports = (robot) ->
   achievementReminder = new CronJob '00 00 16 * * 5', ->
     for room, board of robot.brain.data._private.board
       robot.messageRoom room, "Hello " + robot.brain.data._private.team[room].name + "!"
-      robot.messageRoom room, "Are there any achievements from the week that need to be added to your board '" + board.name + "'?"
+      robot.messageRoom room, "Are there any achievements from the week that someone @here needs to add to your board '" + board.name + "'?"
   , null, true, 'America/New_York'
 
   robot.hear /who(’|'| i)s awesome/i, (msg) ->
