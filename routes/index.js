@@ -60,6 +60,34 @@ router.get('/teams/:team/moods', function(req, res, next) {
   });
 });
 
+router.post('/slack-moods', function(req, res, next) {
+  var mood = new Mood();
+  mood.userId = req.body.user.id;
+  // millisecond precision on the button press is not important, so we are using date now() instead of the event time
+  mood.date = Date.now();
+  // the button should be named something like mood_%teamId%. We are looking for the team ID
+  var moodButtonName = req.body.actions[0].name;
+  var moodButtonNameSplit = moodButtonName.split('_');
+  mood.team = moodButtonNameSplit[1];
+  mood.moodText = req.body.actions[0].value;
+
+  mood.save(function(err, mood) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      if(err.code === 11000) {
+        var newErr = new Error('Duplicate name not allowed');
+        newErr.status = 400;
+        return next(newErr);
+      } else {
+        return next(err);
+      }
+    }
+    res.json(mood);
+  });
+});
+
 router.post('/teams/:team/moods', function(req, res, next) {
   var mood = new Mood(req.body);
   mood.team = req.team._id;
