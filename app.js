@@ -9,6 +9,7 @@ require('./models/Teams');
 require('./models/Boards');
 require('./models/States');
 require('./models/Achievements');
+require('./models/Moods');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');

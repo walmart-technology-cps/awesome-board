@@ -6,6 +6,7 @@ var Team = mongoose.model('Team');
 var Board = mongoose.model('Board');
 var State = mongoose.model('State');
 var Achievement = mongoose.model('Achievement');
+var Mood = mongoose.model('Mood');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
