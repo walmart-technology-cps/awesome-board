@@ -14,8 +14,8 @@ Digital solution for an Awesome Board a.k.a. Spotify Improvement Board a.k.a. To
       1. `brew update`
       1. `brew upgrade node`
 1. Make sure mongodb is installed
-  1. Again, we recommend homebrew - type `brew install mongodb` (or one of the other options [here](https://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/))
-  1. Follow the instructions [here](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/#run-mongodb) the first time you run mongodb to make sure your machine is set up for it
+  * Again, we recommend homebrew - type `brew install mongodb` (or one of the other options [here](https://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/))
+  * Follow the instructions [here](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/#run-mongodb) the first time you run mongodb to make sure your machine is set up for it
 1. Clone the code to your workstation - `git clone https://github.com/walmart-technology-cps/awesome-board.git` - and cd into it - `cd awesome-board`
 1. Make sure mongodb is running by typing `mongod &`
 1. Type `npm install` - this will pull all of the dependencies found in the package.json file
@@ -31,6 +31,13 @@ Digital solution for an Awesome Board a.k.a. Spotify Improvement Board a.k.a. To
 Then type `npm start` to start.
   * To exit awesome-hubot slack connection, type `exit`
   * To stop the server, press <kbd>control</kbd> + <kbd>c</kbd>
+
+## Slack Integration
+Some of the functionality in the Slack integration requires that the bot be set up as part of an app, not a custom integration. To set this up, follow these steps:
+1. Go to https://api.slack.com/apps and click "Create New App"
+2. Enable the bot for your app via "Bot Users" under the "Features" side menu
+3. Install the app on the Slack team of your choice via "Install App" under the "Settings" side menu
+  * The "Bot User OAuth Access Token" is the token that you'll need to use for the SLACK_TOKEN Environment Variable listed below
 
 ## Parameterization
 There are several values that have hard-coded default values, but can be modified by parameterization. If you want to change these values without hardcoding them, use the appropriate environment variable below.
