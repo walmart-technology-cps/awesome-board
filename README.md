@@ -54,7 +54,7 @@ There are several values that have hard-coded default values, but can be modifie
 **The ReST API has been implemented thusly (accessible from root [http://localhost:3000/](http://localhost:3000/):**
 * /teams
   * GET - JSON array of teams
-      `[{"_id":"a1phanum3ric","name":"Team Name 1","__v":1,"boards":["a1phanum3ric"]},{"_id":"a1phanum3ric","name":"Team 2","__v":2,"boards":["a1phanum3ric","a1phanum3ric"]}]`
+    * `[{"_id":"a1phanum3ric","name":"Team Name 1","__v":1,"boards":["a1phanum3ric"]},{"_id":"a1phanum3ric","name":"Team 2","__v":2,"boards":["a1phanum3ric","a1phanum3ric"]}]`
   * POST - Provide JSON for a single team
     * `{"name": "Required and Unique"}`
 * /teams/:team
@@ -114,3 +114,13 @@ There are several values that have hard-coded default values, but can be modifie
   * PUT - JSON with new title, description, and/or date (all optional not included is ignored)
     * `{"title":"New Achievement Title", "description":"New Achievement Description", "date":"May 1 2016 12:00:00"}`
   * DELETE - No JSON required, removes the requested achievement
+* /moods
+  * GET - JSON array of moods
+    * `[{"_id":"a1phanum3ric","userId":"xduan2","__v":0,"date":"2017-06-28T17:59:12.215Z","team": "5953e6af8ea7deff81823115","moodText": ":joy:",}]`
+  * POST - Provide JSON for a single mood
+    * `{"userId": "Slack User ID","moodText":"Mood Text","team": "5953e6af8ea7deff81823115"}`
+* /teams/:team/moods
+  * GET - JSON array of boards under the specified team
+    * `[{"_id":"a1phanum3ric","userId":"xduan2","__v":0,"date":"2017-06-28T17:59:12.215Z","team": "5953e6af8ea7deff81823115","moodText": ":joy:",}]`
+  * POST - Provide JSON for a single mood
+    * `{"userId": "Slack User ID","moodText":"Mood Text"}`
