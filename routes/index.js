@@ -8,6 +8,43 @@ var State = mongoose.model('State');
 var Achievement = mongoose.model('Achievement');
 var Mood = mongoose.model('Mood');
 
+/** Moods **/
+
+router.get('/moods', function(req, res, next) {
+  Mood.find(function(err, moods) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    res.json(moods);
+  });
+});
+
+
+router.post('/moods', function(req, res, next) {
+  var mood = new Mood(req.body);
+
+  mood.save(function(err, mood) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      if(err.code === 11000) {
+        var newErr = new Error('Duplicate name not allowed');
+        newErr.status = 400;
+        return next(newErr);
+      } else {
+        return next(err);
+      }
+    }
+    res.json(mood);
+  });
+});
+
+/** **/
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
