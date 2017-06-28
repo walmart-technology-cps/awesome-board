@@ -22,10 +22,47 @@ router.get('/moods', function(req, res, next) {
   });
 });
 
-
 router.post('/moods', function(req, res, next) {
   var mood = new Mood(req.body);
 
+  mood.save(function(err, mood) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      if(err.code === 11000) {
+        var newErr = new Error('Duplicate name not allowed');
+        newErr.status = 400;
+        return next(newErr);
+      } else {
+        return next(err);
+      }
+    }
+    res.json(mood);
+  });
+});
+
+router.get('/teams/:team/moods', function(req, res, next) {
+  var query = Mood.find({"team":req.team});
+
+  query.exec(function(err, moods) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    if(!moods) {
+      return [];
+    }
+
+    res.json(moods);
+  });
+});
+
+router.post('/teams/:team/moods', function(req, res, next) {
+  var mood = new Mood(req.body);
+  mood.team = req.team._id;
   mood.save(function(err, mood) {
     if(err) {
       if('development'===env) {
