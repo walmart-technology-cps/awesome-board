@@ -207,9 +207,9 @@ module.exports = (robot) ->
           msg.send achievement.description
 
   robot.respond /testing/i, (msg) ->
-    # console.log("Room's Team ID: " + robot.brain.data._private.team[msg.message.room]._id)
-    # console.log(robot.brain.data._private.team)
-    # console.log(msg.message.room)
+    console.log("Room's Team ID: " + robot.brain.data._private.team[msg.message.room]._id)
+    console.log(robot.brain.data._private.team)
+    console.log(msg.message.room)
     buttonName = "mood_" + robot.brain.data._private.team[msg.message.room]._id
     robot.emit 'slack.attachment',
       message: msg.message

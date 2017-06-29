@@ -61,7 +61,7 @@ router.get('/teams/:team/moods', function(req, res, next) {
 });
 
 router.post('/slack-moods', function(req, res, next) {
-  // console.log(req.body);
+  console.log(req.body);
   var mood = new Mood();
   // millisecond precision on the button press is not important, so we are using date now() instead of the event time
   mood.date = Date.now();
