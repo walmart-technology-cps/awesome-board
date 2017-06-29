@@ -61,16 +61,11 @@ router.get('/teams/:team/moods', function(req, res, next) {
 });
 
 router.post('/slack-moods', function(req, res, next) {
-  console.log(req.headers);
-  console.log(req.body);
   var mood = new Mood();
   // millisecond precision on the button press is not important, so we are using date now() instead of the event time
   mood.date = Date.now();
   // the button should be named something like mood_%teamId%. We are looking for the team ID
-  console.log(req.body.payload);
-  console.log(req.body[0]);
   var actionJSONPayload = JSON.parse(req.body.payload)
-  console.log(actionJSONPayload);
   var moodButtonName = actionJSONPayload.actions[0].name;
   var moodButtonNameSplit = moodButtonName.split('_');
   mood.team = moodButtonNameSplit[1];
