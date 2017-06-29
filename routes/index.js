@@ -86,7 +86,7 @@ router.post('/slack-moods', function(req, res, next) {
     }
 
     var responseAttachment = actionJSONPayload.original_message;
-    delete responseAttachment.actions
+    delete responseAttachment[actions]
     responseAttachment.text = "Thank you for your response!";
     responseAttachment.image_url = "http://wmt-awesome-bot.herokuapp.com/img/mood_" + mood.moodText + "_v2.png" 
 
