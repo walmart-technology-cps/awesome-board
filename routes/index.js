@@ -65,7 +65,7 @@ router.post('/slack-moods', function(req, res, next) {
   // millisecond precision on the button press is not important, so we are using date now() instead of the event time
   mood.date = Date.now();
   // the button should be named something like mood_%teamId%. We are looking for the team ID
-  var actionJSONPayload = JSON.parse(req.body.payload)
+  var actionJSONPayload = JSON.parse(req.body.payload);
   var moodButtonName = actionJSONPayload.actions[0].name;
   var moodButtonNameSplit = moodButtonName.split('_');
   mood.team = moodButtonNameSplit[1];
@@ -105,6 +105,64 @@ router.post('/teams/:team/moods', function(req, res, next) {
       }
     }
     res.json(mood);
+  });
+});
+
+router.param('startDate', function(req, res, next, amount) {
+  if(Date.parse(amount)) {
+    req.startDate = Date.parse(amount);
+  } else {
+    var newDate = new Date(amount);
+    if(newDate == "Invalid Date"){
+      req.startDate = amount;
+    } else {
+      req.startDate = newDate;
+    }
+  }
+  return next();
+});
+
+router.param('endDate', function(req, res, next, amount) {
+  if(Date.parse(amount)) {
+    req.endDate = Date.parse(amount);
+  } else {
+    var newDate = new Date(amount);
+    if(newDate == "Invalid Date"){
+      req.endDate = amount;
+    } else {
+      req.endDate = newDate;
+    }
+  }
+  return next();
+});
+
+router.get('/teams/:team/moods/:startDate/:endDate', function(req, res, next) {
+  var query = Mood.find({"team":req.team});
+  var moodsWithinTime = [];
+
+  query.exec(function(err, moods) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    if(!moods) {
+      return [];
+    }
+
+    if(req.startDate != null && req.endDate!=null){
+      for(var i = 0; i< moods.length; i++){
+        var moodDate = Date.parse(moods[i].date);
+        if( moodDate > req.startDate && moodDate < req.endDate ){
+          moodsWithinTime.push(moods[i]);
+        }
+      }
+    } else {
+      return next(err);
+    }
+
+    res.json(moodsWithinTime);
   });
 });
 

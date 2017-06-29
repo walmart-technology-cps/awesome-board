@@ -120,7 +120,10 @@ There are several values that have hard-coded default values, but can be modifie
   * POST - Provide JSON for a single mood
     * `{"userId": "Slack User ID","moodText":"Mood Text","team": "5953e6af8ea7deff81823115"}`
 * /teams/:team/moods
-  * GET - JSON array of boards under the specified team
+  * GET - JSON array of moods under the specified team
     * `[{"_id":"a1phanum3ric","userId":"xduan2","__v":0,"date":"2017-06-28T17:59:12.215Z","team": "5953e6af8ea7deff81823115","moodText": ":joy:",}]`
   * POST - Provide JSON for a single mood
     * `{"userId": "Slack User ID","moodText":"Mood Text"}`
+* /teams/:team/moods/:startDate/:endDate
+  * GET - JSON array of moods under the specified team within startDate and endDate.
+    * `[{"_id":"a1phanum3ric","userId":"xduan2","__v":0,"date":"2017-06-28T17:59:12.215Z","team": "5953e6af8ea7deff81823115","moodText": ":joy:",}]`
