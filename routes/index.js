@@ -91,7 +91,8 @@ router.post('/slack-moods', function(req, res, next) {
       "callback_id": "dab_mood_response" ,
       "color": "#3AA3E3" ,
       "attachment_type": "default" ,
-      "image_url": "http://wmt-awesome-bot.herokuapp.com/img/mood_" + mood.moodText + "_v2.png" 
+      "image_url": "http://wmt-awesome-bot.herokuapp.com/img/mood_" + mood.moodText + "_v2.png" ,
+      "replace_original": false
     }
 
       res.json(responseAttachment);
