@@ -242,3 +242,14 @@ module.exports = (robot) ->
           type: "button"
           value: "sad"
         }]
+
+  robot.respond /test response (.*)/i, (msg) -> 
+    robot.emit 'slack.attachment',
+      message: msg.message
+      content:
+        text: "Thank you for your response!"
+        fallback: "Oh no! Something went horribly wrong!"
+        callback_id: "dab_mood_response" 
+        color: "#3AA3E3"
+        attachment_type: "default"
+        image_url: "http://wmt-awesome-bot.herokuapp.com/img/mood_" + msg.match[1] + "_v2.png"
