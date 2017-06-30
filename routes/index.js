@@ -93,7 +93,7 @@ router.post('/slack-moods', function(req, res, next) {
       "color": "#3AA3E3",
       "attachment_type": "default",
       "image_url": "http://wmt-awesome-bot.herokuapp.com/img/mood_" + mood.moodText + "_v2.png" 
-    }
+    };
 
     res.json(responseAttachment);
   });
@@ -279,7 +279,7 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
       var fileStream = fs.createWriteStream(imageFilename);
       imageStream.pipe(fileStream);
 
-      var imageUrl = "http://localhost:3000/" + imageFilename;
+      var imageUrl = "http://" + req.headers.host + "/" + imageFilename;//"http:/wmt-awesome-bot.herokuapp.com/" + imageFilename;
       res.json(
         {
           "imageUrl":imageUrl
