@@ -370,15 +370,15 @@ function prepareChartData(moodsSet) {
 
 function measureMood(moodText) {
   switch (moodText) {
-    case 'bolt-ecstatic':
+    case 'ecstatic':
       return 5;
-    case 'bolt-happy':
+    case 'happy':
       return 4;
-    case 'bolt-indifferent':
+    case 'indifferent':
       return 3;
-    case 'bolt-disappointed':
+    case 'disappointed':
       return 2;
-    case 'bolt-sad':
+    case 'sad':
       return 1;
     default:
       return Math.floor((Math.random() * 5) + 1);
