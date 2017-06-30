@@ -88,15 +88,16 @@ router.post('/slack-moods', function(req, res, next) {
     }
 
     var responseAttachment = {
+      "text": "Thank you for your response!",
       "response_type": "ephemeral",
+      "replace_original": false,
       "attachments": [{
-        "text": "Thank you for your response! If you choose to respond again, only your most recent response will be counted for the day.",
+        "text": "If you choose to respond again, only your most recent response will be counted for the day.",
         "fallback": "Oh no! Something went horribly wrong!",
         "callback_id": "dab_mood_response",
         "color": "#3AA3E3",
         "attachment_type": "default",
-        "image_url": "http://wmt-awesome-bot.herokuapp.com/img/mood_" + mood.moodText + "_v2.png" ,
-        "replace_original": false
+        "image_url": "http://wmt-awesome-bot.herokuapp.com/img/mood_" + mood.moodText + "_v2.png" 
       }]
     }
 
