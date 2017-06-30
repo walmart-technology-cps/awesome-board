@@ -253,3 +253,40 @@ module.exports = (robot) ->
             value: "sad"
           }]
   , null, true, 'America/New_York'
+
+  robot.respond /demo mood poll/i, (msg) ->
+    buttonName = "mood_" + robot.brain.data._private.team[msg.message.room]._id
+    robot.emit 'slack.attachment',
+      message: msg.message
+      content:
+        text: "How was your day today?"
+        fallback: "Oh no! Something went horribly wrong!"
+        callback_id: "dab_mood"
+        color: "#3AA3E3"
+        attachment_type: "default"
+        actions: [{
+          name: buttonName
+          text: ":bolt-ecstatic:"
+          type: "button"
+          value: "ecstatic"
+        },{
+          name: buttonName
+          text: ":bolt-happy:"
+          type: "button"
+          value: "happy"
+        },{
+          name: buttonName
+          text: ":bolt-indifferent:"
+          type: "button"
+          value: "indifferent"
+        },{
+          name: buttonName
+          text: ":bolt-disappointed:"
+          type: "button"
+          value: "disappointed"
+        },{
+          name: buttonName
+          text: ":bolt-sad:"
+          type: "button"
+          value: "sad"
+        }]
