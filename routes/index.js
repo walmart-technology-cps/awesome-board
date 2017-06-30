@@ -275,7 +275,7 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
 
       var today = new Date();
       var pngFilename = "mood-chart" + Date.now();
-      var todayDateNumber = today.toDateString();
+      var todayDateNumber = today.getFullYear().toString() + today.getMonth().toString() + today.getDay().toString();//today.toDateString();
       var dir = 'public/img/' + todayDateNumber;
 
       if (!fs.existsSync(dir)){
