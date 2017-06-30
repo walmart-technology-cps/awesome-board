@@ -92,7 +92,7 @@ router.post('/slack-moods', function(req, res, next) {
       "response_type": "ephemeral",
       "replace_original": false,
       "attachments": [{
-        "text": "If you choose to respond again, only your most recent response will be counted for the day.",
+        "text": "Your most recent daily response gets counted.",
         "fallback": "Oh no! Something went horribly wrong!",
         "callback_id": "dab_mood_response",
         "color": "#3AA3E3",
