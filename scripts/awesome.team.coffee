@@ -4,6 +4,7 @@
 #   List the teams - Lists the available teams
 #   Make {teamname} our team - Associates the requested team with the current channel
 #   What's our team? - Provides the name of the team associated with the channel
+#   {x}-day mood - Provides a candlestick graph of the average, high, and low moods for the team over the last x number of days
 #   Add board {boardname} - Adds a board to the team with the name {boardname} (requires a team be set for the channel)
 #   List the boards - Lists the available boards for the team (requires a team be set for the channel)
 #   Make {boardname} our board - Associates the requested board with the current channel (requires a team be set for the channel)
@@ -262,40 +263,3 @@ module.exports = (robot) ->
             value: "sad"
           }]
   , null, true, 'America/New_York'
-
-  robot.respond /demo mood poll/i, (msg) ->
-    buttonName = "mood_" + robot.brain.data._private.team[msg.message.room]._id
-    robot.emit 'slack.attachment',
-      message: msg.message
-      content:
-        text: "How was your day today?"
-        fallback: "Oh no! Something went horribly wrong!"
-        callback_id: "dab_mood"
-        color: "#3AA3E3"
-        attachment_type: "default"
-        actions: [{
-          name: buttonName
-          text: ":bolt-ecstatic:"
-          type: "button"
-          value: "ecstatic"
-        },{
-          name: buttonName
-          text: ":bolt-happy:"
-          type: "button"
-          value: "happy"
-        },{
-          name: buttonName
-          text: ":bolt-indifferent:"
-          type: "button"
-          value: "indifferent"
-        },{
-          name: buttonName
-          text: ":bolt-disappointed:"
-          type: "button"
-          value: "disappointed"
-        },{
-          name: buttonName
-          text: ":bolt-sad:"
-          type: "button"
-          value: "sad"
-        }]
