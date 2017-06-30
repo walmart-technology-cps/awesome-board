@@ -127,3 +127,6 @@ There are several values that have hard-coded default values, but can be modifie
 * /teams/:team/moods/:startDate/:endDate
   * GET - JSON array of moods under the specified team within startDate and endDate.
     * `[{"_id":"a1phanum3ric","userId":"xduan2","__v":0,"date":"2017-06-28T17:59:12.215Z","team": "5953e6af8ea7deff81823115","moodText": ":joy:",}]`
+* /teams/:team/moods/:lastNumOfDays/trend/image
+  * GET - imageUrl of the chart of moods trend in last n days.
+    * `{"imageUrl": "http://localhost:3000/public/img/Thu Jun 29 2017/moodchart1498792735936.png"}`
