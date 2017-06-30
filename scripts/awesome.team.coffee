@@ -215,50 +215,41 @@ module.exports = (robot) ->
         for achievement in JSON.parse body
           msg.send achievement.description
 
-  robot.respond /testing/i, (msg) ->
-    buttonName = "mood_" + robot.brain.data._private.team[msg.message.room]._id
-    robot.emit 'slack.attachment',
-      message: msg.message
-      content:
-        text: "How was your day today?"
-        fallback: "Oh no! Something went horribly wrong!"
-        callback_id: "dab_mood"
-        color: "#3AA3E3"
-        attachment_type: "default"
-        actions: [{
-          name: buttonName
-          text: ":bolt-ecstatic:"
-          type: "button"
-          value: "ecstatic"
-        },{
-          name: buttonName
-          text: ":bolt-happy:"
-          type: "button"
-          value: "happy"
-        },{
-          name: buttonName
-          text: ":bolt-indifferent:"
-          type: "button"
-          value: "indifferent"
-        },{
-          name: buttonName
-          text: ":bolt-disappointed:"
-          type: "button"
-          value: "disappointed"
-        },{
-          name: buttonName
-          text: ":bolt-sad:"
-          type: "button"
-          value: "sad"
-        }]
-
-  robot.respond /test response (.*)/i, (msg) -> 
-    robot.emit 'slack.attachment',
-      message: msg.message
-      content:
-        text: "Thank you for your response!"
-        fallback: "Oh no! Something went horribly wrong!"
-        callback_id: "dab_mood_response" 
-        color: "#3AA3E3"
-        attachment_type: "default"
-        image_url: "http://wmt-awesome-bot.herokuapp.com/img/mood_" + msg.match[1] + "_v2.png"
+  moodPoll = new CronJob '00 30 16 * * 1-5', ->
+    for room, board of robot.brain.data._private.board
+      buttonName = "mood_" + robot.brain.data._private.team[room]._id
+      robot.emit 'slack.attachment',
+        message: msg.message
+        content:
+          text: "How was your day today?"
+          fallback: "Oh no! Something went horribly wrong!"
+          callback_id: "dab_mood"
+          color: "#3AA3E3"
+          attachment_type: "default"
+          actions: [{
+            name: buttonName
+            text: ":bolt-ecstatic:"
+            type: "button"
+            value: "ecstatic"
+          },{
+            name: buttonName
+            text: ":bolt-happy:"
+            type: "button"
+            value: "happy"
+          },{
+            name: buttonName
+            text: ":bolt-indifferent:"
+            type: "button"
+            value: "indifferent"
+          },{
+            name: buttonName
+            text: ":bolt-disappointed:"
+            type: "button"
+            value: "disappointed"
+          },{
+            name: buttonName
+            text: ":bolt-sad:"
+            type: "button"
+            value: "sad"
+          }]
+  , null, true, 'America/New_York'
