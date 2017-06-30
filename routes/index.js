@@ -88,6 +88,7 @@ router.post('/slack-moods', function(req, res, next) {
     }
 
     var responseAttachment = {
+      "response_type": "ephemeral",
       "attachments": [{
         "text": "Thank you for your response! If you choose to respond again, only your most recent response will be counted for the day.",
         "fallback": "Oh no! Something went horribly wrong!",
