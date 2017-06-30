@@ -85,7 +85,17 @@ router.post('/slack-moods', function(req, res, next) {
         return next(err);
       }
     }
-    res.json(mood);
+
+    var responseAttachment = {
+      "text": "Thank you for your response!",
+      "fallback": "Oh no! Something went horribly wrong!",
+      "callback_id": "dab_mood_response",
+      "color": "#3AA3E3",
+      "attachment_type": "default",
+      "image_url": "http://wmt-awesome-bot.herokuapp.com/img/mood_" + mood.moodText + "_v2.png" 
+    }
+
+    res.json(responseAttachment);
   });
 });
 
