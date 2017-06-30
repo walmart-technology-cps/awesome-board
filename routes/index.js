@@ -276,16 +276,18 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
       var today = new Date();
       var pngFilename = "mood-chart" + Date.now();
       var todayDateNumber = today.getFullYear().toString() + today.getMonth().toString() + today.getDay().toString();//today.toDateString();
-      var dir = 'public/img/' + todayDateNumber;
+      var uriPath = 'img/' + todayDateNumber;
+      var dir = 'public/' + uri;
 
       if (!fs.existsSync(dir)){
         fs.mkdirSync(dir);
       }
       var imageFilename = dir + '/' + pngFilename + '.png';
+      var uriPath = uriPath + '/' + pngFilename + '.png';
       var fileStream = fs.createWriteStream(imageFilename);
       imageStream.pipe(fileStream);
 
-      var imageUrl = "http://" + req.headers.host + "/" + imageFilename;
+      var imageUrl = "http://" + req.headers.host + "/" + uriPath;
       res.json(
         {
           "imageUrl":imageUrl
