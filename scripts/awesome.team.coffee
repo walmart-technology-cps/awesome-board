@@ -33,6 +33,15 @@ module.exports = (robot) ->
       robot.messageRoom room, "Are there any achievements from the week that someone @here needs to add to your board '" + board.name + "'?"
   , null, true, 'America/New_York'
 
+  robot.hear /what is the team's mood in the past (.*) days/i, (msg) ->
+    if robot.brain.data._private.team is undefined or robot.brain.data._private.team[msg.message.room] is undefined
+      msg.reply "You haven't picked a team yet!"
+    else
+      msg.http($baseurl+"/teams/"+robot.brain.data._private.team[msg.message.room]._id+"/moods/" +msg.match[1]+ "/trend/image")
+      .get() (err, res, body) ->
+        image = JSON.parse body
+        msg.reply image.imageUrl
+
   robot.hear /who(’|'| i)s awesome/i, (msg) ->
     msg.reply msg.random youre_awesome
 
