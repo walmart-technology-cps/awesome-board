@@ -281,7 +281,7 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
       var fileStream = fs.createWriteStream(imageFilename);
       imageStream.pipe(fileStream);
 
-      var imageUrl = "http://" + req.headers.host + "/" + imageFilename;//"http:/wmt-awesome-bot.herokuapp.com/" + imageFilename;
+      var imageUrl = "http://" + req.headers.host + "/" + imageFilename;
       res.json(
         {
           "imageUrl":imageUrl
