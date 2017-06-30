@@ -7,9 +7,10 @@ var Board = mongoose.model('Board');
 var State = mongoose.model('State');
 var Achievement = mongoose.model('Achievement');
 var Mood = mongoose.model('Mood');
+var plotly = require('plotly')(process.env.PLOTLY_USERNAME || 'timduan', process.env.PLOTLY_API_KEY || 'Py5JnU0yDVpl9mi9DVrL');
+var fs = require('fs');
 
 /** Moods **/
-
 router.get('/moods', function(req, res, next) {
   Mood.find(function(err, moods) {
     if(err) {
@@ -136,6 +137,11 @@ router.param('endDate', function(req, res, next, amount) {
   return next();
 });
 
+router.param('lastNumOfDays', function (req, res, next, amount) {
+  req.lastNumOfDays = amount;
+  return next();
+});
+
 router.get('/teams/:team/moods/:startDate/:endDate', function(req, res, next) {
   var query = Mood.find({"team":req.team});
   var moodsWithinTime = [];
@@ -166,6 +172,208 @@ router.get('/teams/:team/moods/:startDate/:endDate', function(req, res, next) {
   });
 });
 
+router.get('/teams/:team/moods/:lastNumOfDays/', function(req, res, next) {
+  var query = Mood.find({"team":req.team});
+  var moodsWithinTime = [];
+
+  query.exec(function(err, moods) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    if(!moods) {
+      return [];
+    }
+
+    if(req.lastNumOfDays != null){
+      for(var i = 0; i< moods.length; i++){
+        var moodDate = Date.parse(moods[i].date);
+        var startDate = Date.now() - req.lastNumOfDays*24*60*60*1000;
+        if( moodDate > startDate ){
+          moodsWithinTime.push(moods[i]);
+        }
+      }
+    } else {
+      return next(err);
+    }
+
+    res.json(moodsWithinTime);
+  });
+});
+
+router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, next) {
+  var query = Mood.find({"team":req.team});
+  var moodsSet = [];
+
+  query.exec(function(err, moods) {
+    if(err) {
+      if('development'===env) {
+        console.warn('ERROR: ' + err);
+      }
+      return next(err);
+    }
+    if(!moods) {
+      return [];
+    }
+
+    var moodsWithinOneDay = [];
+
+    if(req.lastNumOfDays != null){
+      //Loop each day
+      for(var j = req.lastNumOfDays; j > 0; j--) {
+        moodsWithinOneDay = [];
+        //Loop each moods
+        for(var i = 0; i< moods.length; i++){
+          var moodDate = Date.parse(moods[i].date);
+          var thatDay = Date.now() - j*24*60*60*1000;
+
+          //Later than that day, and different less than one day.
+          if( (moodDate - thatDay) < 24*60*60*1000 && (moodDate - thatDay) > 0 ){
+            moodsWithinOneDay.push(moods[i]);
+          }
+        }
+
+        //Skip empty days
+        if(moodsWithinOneDay.length > 0){
+          moodsSet.push(moodsWithinOneDay);
+        }
+      }
+
+    } else {
+      return next(err);
+    }
+
+    var data = prepareChartData(moodsSet);
+    var figure = { 'data': data };
+
+    var imgOpts = {
+      format: 'png',
+      width: 1000,
+      height: 500
+    };
+
+    plotly.getImage(figure, imgOpts, function (error, imageStream) {
+      if (error) return console.log (error);
+
+      var today = new Date();
+      var pngFilename = "mood-chart" + Date.now();
+      var todayDateNumber = today.toDateString();
+      var dir = 'public/img/' + todayDateNumber;
+
+      if (!fs.existsSync(dir)){
+        fs.mkdirSync(dir);
+      }
+      var imageFilename = dir + '/' + pngFilename + '.png';
+      var fileStream = fs.createWriteStream(imageFilename);
+      imageStream.pipe(fileStream);
+
+      var imageUrl = "http://localhost:3000/" + imageFilename;
+      res.json(
+        {
+          "imageUrl":imageUrl
+        }
+      );
+    });
+  });
+});
+
+function prepareChartData(moodsSet) {
+  var statSet = [];
+
+  for(var i = 0; i < moodsSet.length; i++){
+    if(moodsSet[i] != []){
+      var dayDataSet = [];
+      var dayDataStat = {
+        dateString : "",
+        lowerEnd : "",
+        higherEnd : "",
+        average : ""
+      };
+      var sum = 0;
+      for(var j = 0; j < moodsSet[i].length; j++){
+        var measureValue = measureMood(moodsSet[i][j].moodText);
+        dayDataSet.push(measureValue);
+        sum = sum + measureValue;
+        dayDataStat.dateString = moodsSet[i][j].date.toDateString();
+      }
+      /*
+      console.log(dayDataSet);
+      console.log("sum:" + sum);
+      console.log("average:" + sum/moodsSet[i].length);
+      console.log("smallest:" + Math.min.apply(null, dayDataSet));
+      console.log("largest:" + Math.max.apply(null, dayDataSet));
+      */
+
+      dayDataStat.lowerEnd = Math.min.apply(null, dayDataSet);
+      dayDataStat.higherEnd = Math.max.apply(null, dayDataSet);
+      dayDataStat.average = sum/moodsSet[i].length;
+
+      statSet.push(dayDataStat);
+    }
+  }
+  /*
+  console.log("____");
+  console.log("____");
+  console.log(statSet);
+  */
+
+  //Prepare x, y, array and arrayminus for the chart to show
+  var data = [];
+  var track = {
+    x : [],
+    y : [],
+    error_y: {
+      type: 'data',
+      symmetric: false,
+      array: [],
+      arrayminus: []
+    },
+    type: 'scatter'
+  };
+  
+  for(var k = 0; k < statSet.length; k++){
+    //x
+    track.x.push(statSet[k].dateString);
+    
+    //y
+    track.y.push(statSet[k].average);
+    
+    //array, the top length above average
+    var arrayValue = statSet[k].higherEnd - statSet[k].average;
+    track.error_y.array.push(arrayValue);
+    
+    //arrayminus, the down length below average
+    var arrayminusValue = statSet[k].average - statSet[k].lowerEnd;
+    track.error_y.arrayminus.push(arrayminusValue);
+  }
+  /*
+  console.log(track.error_y.array);
+  console.log(track.error_y.arrayminus);
+  */
+
+  data.push(track);
+
+  return data;
+}
+
+function measureMood(moodText) {
+  switch (moodText) {
+    case 'bolt-ecstatic':
+      return 5;
+    case 'bolt-happy':
+      return 4;
+    case 'bolt-indifferent':
+      return 3;
+    case 'bolt-disappointed':
+      return 2;
+    case 'bolt-sad':
+      return 1;
+    default:
+      return Math.floor((Math.random() * 5) + 1);
+  }
+}
 /** **/
 
 /* GET home page. */
