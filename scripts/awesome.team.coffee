@@ -225,11 +225,11 @@ module.exports = (robot) ->
         for achievement in JSON.parse body
           msg.send achievement.description
 
-  moodPoll = new CronJob '00 30 16 * * 1-5', ->
+  moodPoll = new CronJob '00 00 20 * * 1-5', ->
     for room, board of robot.brain.data._private.board
       buttonName = "mood_" + robot.brain.data._private.team[room]._id
       robot.emit 'slack.attachment',
-        message: msg.message
+        message: robot.messageRoom
         content:
           text: "How was your day today?"
           fallback: "Oh no! Something went horribly wrong!"
