@@ -28,13 +28,13 @@ module.exports = (robot) ->
     "http://i.imgur.com/aimsF.jpg"
   ]
 
-  achievementReminder = new CronJob '00 18 20 * * 5', ->
+  achievementReminder = new CronJob '00 00 16 * * 5', ->
     for room, board of robot.brain.data._private.board
       robot.messageRoom room, "Hello " + robot.brain.data._private.team[room].name + "!"
       robot.messageRoom room, "Are there any achievements from the week that someone @here needs to add to your board '" + board.name + "'?"
   , null, true, 'America/New_York'
 
-  moodPoll = new CronJob '00 08 20 * * 1-5', ->
+  moodPoll = new CronJob '00 20 20 * * 1-5', ->
     for room, board of robot.brain.data._private.board
       buttonName = "mood_" + robot.brain.data._private.team[room]._id
       pollMessage = {
