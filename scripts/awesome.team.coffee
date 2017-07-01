@@ -34,45 +34,43 @@ module.exports = (robot) ->
       robot.messageRoom room, "Are there any achievements from the week that someone @here needs to add to your board '" + board.name + "'?"
   , null, true, 'America/New_York'
 
-  moodPoll = new CronJob '00 20 20 * * 1-5', ->
+  moodPoll = new CronJob '00 40 20 * * 1-5', ->
     for room, board of robot.brain.data._private.board
       buttonName = "mood_" + robot.brain.data._private.team[room]._id
-      pollMessage = {
-        "attachments": [{
-          "text": "How was your day today?",
-          "fallback": "Oh no! Something went horribly wrong!"
-          "callback_id": "dab_mood"
-          "color": "#3AA3E3"
-          "attachment_type": "default"
-          "actions": [{
-            "name": buttonName
-            "text": ":bolt-ecstatic:"
-            "type": "button"
-            "value": "ecstatic"
+      robot.emit 'slack.attachment',
+        message: room
+        content:
+          text: "How was your day today?"
+          fallback: "Oh no! Something went horribly wrong!"
+          callback_id: "dab_mood"
+          color: "#3AA3E3"
+          attachment_type: "default"
+          actions: [{
+            name: buttonName
+            text: ":bolt-ecstatic:"
+            type: "button"
+            value: "ecstatic"
           },{
-            "name": buttonName
-            "text": ":bolt-happy:"
-            "type": "button"
-            "value": "happy"
+            name: buttonName
+            text: ":bolt-happy:"
+            type: "button"
+            value: "happy"
           },{
-            "name": buttonName
-            "text": ":bolt-indifferent:"
-            "type": "button"
-            "value": "indifferent"
+            name: buttonName
+            text: ":bolt-indifferent:"
+            type: "button"
+            value: "indifferent"
           },{
-            "name": buttonName
-            "text": ":bolt-disappointed:"
-            "type": "button"
-            "value": "disappointed"
+            name: buttonName
+            text: ":bolt-disappointed:"
+            type: "button"
+            value: "disappointed"
           },{
-            "name": buttonName
-            "text": ":bolt-sad:"
-            "type": "button"
-            "value": "sad"
+            name: buttonName
+            text: ":bolt-sad:"
+            type: "button"
+            value: "sad"
           }]
-        }]
-      }
-      robot.messageRoom room, pollMessage
   , null, true, 'America/New_York'
 
   robot.hear /what is the team's mood in the past (.*) days/i, (msg) ->
