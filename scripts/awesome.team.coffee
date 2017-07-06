@@ -73,6 +73,81 @@ module.exports = (robot) ->
           }]
   , null, true, 'America/New_York'
 
+  robot.respond /local mood poll/i, (msg) ->
+    buttonName = "mood_" + robot.brain.data._private.team[msg.message.room]._id
+    robot.emit 'slack.attachment',
+      message: msg.message
+      content:
+        text: "How was your day today?"
+        fallback: "Oh no! Something went horribly wrong!"
+        callback_id: "dab_mood"
+        color: "#3AA3E3"
+        attachment_type: "default"
+        actions: [{
+          name: buttonName
+          text: ":bolt-ecstatic:"
+          type: "button"
+          value: "ecstatic"
+        },{
+          name: buttonName
+          text: ":bolt-happy:"
+          type: "button"
+          value: "happy"
+        },{
+          name: buttonName
+          text: ":bolt-indifferent:"
+          type: "button"
+          value: "indifferent"
+        },{
+          name: buttonName
+          text: ":bolt-disappointed:"
+          type: "button"
+          value: "disappointed"
+        },{
+          name: buttonName
+          text: ":bolt-sad:"
+          type: "button"
+          value: "sad"
+        }]
+
+  robot.respond /global mood poll/i, (msg) ->
+    for room, board of robot.brain.data._private.board
+      buttonName = "mood_" + robot.brain.data._private.team[room]._id
+      robot.messageRoom 'slack.attachment',
+        message: room
+        content:
+          text: "How was your day today?"
+          fallback: "Oh no! Something went horribly wrong!"
+          callback_id: "dab_mood"
+          color: "#3AA3E3"
+          attachment_type: "default"
+          actions: [{
+            name: buttonName
+            text: ":bolt-ecstatic:"
+            type: "button"
+            value: "ecstatic"
+          },{
+            name: buttonName
+            text: ":bolt-happy:"
+            type: "button"
+            value: "happy"
+          },{
+            name: buttonName
+            text: ":bolt-indifferent:"
+            type: "button"
+            value: "indifferent"
+          },{
+            name: buttonName
+            text: ":bolt-disappointed:"
+            type: "button"
+            value: "disappointed"
+          },{
+            name: buttonName
+            text: ":bolt-sad:"
+            type: "button"
+            value: "sad"
+          }]
+
   robot.hear /what is the team's mood in the past (.*) days/i, (msg) ->
     if robot.brain.data._private.team is undefined or robot.brain.data._private.team[msg.message.room] is undefined
       msg.reply "You haven't picked a team yet!"
