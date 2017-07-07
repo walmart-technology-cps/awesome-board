@@ -21,6 +21,7 @@
     "hubot-mongodb-brain": "^0.1.1",
     "hubot-slack": "3.4.2",
     "hubot-slack-attachment": "^1.0.1",
+    "hubot-slack-reaction": "0.0.4",
     "mongoose": "4.4.13",
     "morgan": "1.6.1",
     "plotly": "^1.0.6",

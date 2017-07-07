@@ -319,6 +319,9 @@ module.exports = (robot) ->
     if robot.brain.data._private.board is undefined or robot.brain.data._private.board[msg.message.room] is undefined
       msg.reply "I can't do that until you pick a board!"
     else
+      robot.emit 'slack.reaction',
+        message: msg.message
+        name: 'ur_awesome'
       data = JSON.stringify({
         title: msg.match[1],
         description: msg.match[2]

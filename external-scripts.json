@@ -1,5 +1,6 @@
 [
   "hubot-help",
   "hubot-mongodb-brain",
-  "hubot-slack-attachment"
+  "hubot-slack-attachment",
+  "hubot-slack-reaction"
 ]
