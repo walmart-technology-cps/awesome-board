@@ -113,7 +113,7 @@ module.exports = (robot) ->
   robot.respond /global mood poll/i, (msg) ->
     for room, board of robot.brain.data._private.board
       buttonName = "mood_" + robot.brain.data._private.team[room]._id
-      robot.messageRoom 'slack.attachment',
+      robot.emit 'slack.attachment',
         message: room
         content:
           text: "How was your day today?"
