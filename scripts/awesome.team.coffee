@@ -114,7 +114,7 @@ module.exports = (robot) ->
     for room, board of robot.brain.data._private.board
       buttonName = "mood_" + robot.brain.data._private.team[room]._id
       robot.emit 'slack.attachment',
-        message: room
+        message: room.messageRoom
         content:
           text: "How was your day today?"
           fallback: "Oh no! Something went horribly wrong!"
