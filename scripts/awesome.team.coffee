@@ -41,7 +41,7 @@ module.exports = (robot) ->
         message: room
         content:
           text: "How was your day today?"
-          fallback: "Oh no! Something went horribly wrong!"
+          fallback: "Mood Poll Time!"
           callback_id: "dab_mood"
           color: "#3AA3E3"
           attachment_type: "default"
@@ -79,7 +79,7 @@ module.exports = (robot) ->
       message: msg.message
       content:
         text: "How was your day today?"
-        fallback: "Oh no! Something went horribly wrong!"
+        fallback: "Mood Poll Time!"
         callback_id: "dab_mood"
         color: "#3AA3E3"
         attachment_type: "default"
@@ -117,7 +117,7 @@ module.exports = (robot) ->
         channel: room
         content:
           text: "How was your day today?"
-          fallback: "Oh no! Something went horribly wrong!"
+          fallback: "Mood Poll Time!"
           callback_id: "dab_mood"
           color: "#3AA3E3"
           attachment_type: "default"
