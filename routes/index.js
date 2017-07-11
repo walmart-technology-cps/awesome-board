@@ -127,7 +127,7 @@ router.post('/teams/:team/moods', function(req, res, next) {
 
 router.param('startDate', function(req, res, next, amount) {
   if(Date.parse(amount)) {
-    req.startDate = Date.parse(amount);
+    req.startDate = new Date(amount);
   } else {
     var newDate = new Date(amount);
     if(newDate == "Invalid Date"){
@@ -141,7 +141,7 @@ router.param('startDate', function(req, res, next, amount) {
 
 router.param('endDate', function(req, res, next, amount) {
   if(Date.parse(amount)) {
-    req.endDate = Date.parse(amount);
+    req.endDate = new Date(amount);
   } else {
     var newDate = new Date(amount);
     if(newDate == "Invalid Date"){
@@ -159,71 +159,73 @@ router.param('lastNumOfDays', function (req, res, next, amount) {
 });
 
 router.get('/teams/:team/moods/:startDate/:endDate', function(req, res, next) {
-  var query = Mood.find({"team":req.team});
-  var moodsWithinTime = [];
-
-  query.exec(function(err, moods) {
+  console.log(req.startDate);
+  console.log(req.endDate);
+  console.log(new Date());
+  Mood.aggregate([
+      {"$match": {"team": req.team._id, "date": {"$gt": req.startDate, "$lt": req.endDate}} },
+      {"$group": {
+        "_id": {
+          "year": {"$year": "$date"},
+          "month": {"$month": "$date"},
+          "day": {"$dayOfMonth": "$date"},
+          "userId": "$userId"},
+        "mood": {"$last": "$moodText"},
+        "date": {"$last": "$date"}
+      }}
+  ], function(err, moods) {
     if(err) {
       if('development'===env) {
         console.warn('ERROR: ' + err);
       }
       return next(err);
     }
-    if(!moods) {
-      return [];
-    }
-
-    if(req.startDate != null && req.endDate!=null){
-      for(var i = 0; i< moods.length; i++){
-        var moodDate = Date.parse(moods[i].date);
-        if( moodDate > req.startDate && moodDate < req.endDate ){
-          moodsWithinTime.push(moods[i]);
-        }
-      }
-    } else {
-      return next(err);
-    }
-
-    res.json(moodsWithinTime);
+    res.json(moods);
   });
 });
 
 router.get('/teams/:team/moods/:lastNumOfDays/', function(req, res, next) {
-  var query = Mood.find({"team":req.team});
-  var moodsWithinTime = [];
-
-  query.exec(function(err, moods) {
+  var startDate = new Date();
+  startDate.setDate(startDate.getDate()-req.lastNumOfDays);
+  Mood.aggregate([
+      {"$match": {"team": req.team._id, "date": {"$gt": startDate}} },
+      {"$group": {
+        "_id": {
+          "year": {"$year": "$date"},
+          "month": {"$month": "$date"},
+          "day": {"$dayOfMonth": "$date"},
+          "userId": "$userId"},
+        "mood": {"$last": "$moodText"},
+        "date": {"$last": "$date"}
+      }}
+  ], function(err, moods) {
     if(err) {
       if('development'===env) {
         console.warn('ERROR: ' + err);
       }
       return next(err);
     }
-    if(!moods) {
-      return [];
-    }
-
-    if(req.lastNumOfDays != null){
-      for(var i = 0; i< moods.length; i++){
-        var moodDate = Date.parse(moods[i].date);
-        var startDate = Date.now() - req.lastNumOfDays*24*60*60*1000;
-        if( moodDate > startDate ){
-          moodsWithinTime.push(moods[i]);
-        }
-      }
-    } else {
-      return next(err);
-    }
-
-    res.json(moodsWithinTime);
+    res.json(moods);
   });
 });
 
 router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, next) {
-  var query = Mood.find({"team":req.team});
+  var startDate = new Date();
+  startDate.setDate(startDate.getDate()-req.lastNumOfDays);
   var moodsSet = [];
 
-  query.exec(function(err, moods) {
+  Mood.aggregate([
+      {"$match": {"team": req.team._id, "date": {"$gt": startDate}} },
+      {"$group": {
+        "_id": {
+          "year": {"$year": "$date"},
+          "month": {"$month": "$date"},
+          "day": {"$dayOfMonth": "$date"},
+          "userId": "$userId"},
+        "mood": {"$last": "$moodText"},
+        "date": {"$last": "$date"}
+      }}
+  ], function(err, moods) {
     if(err) {
       if('development'===env) {
         console.warn('ERROR: ' + err);
@@ -297,7 +299,7 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
   });
 });
 
-function prepareChartData(moodsSet) {
+var prepareChartData = function(moodsSet) {
   var statSet = [];
 
   for(var i = 0; i < moodsSet.length; i++){
@@ -311,18 +313,11 @@ function prepareChartData(moodsSet) {
       };
       var sum = 0;
       for(var j = 0; j < moodsSet[i].length; j++){
-        var measureValue = measureMood(moodsSet[i][j].moodText);
+        var measureValue = measureMood(moodsSet[i][j].mood);
         dayDataSet.push(measureValue);
         sum = sum + measureValue;
         dayDataStat.dateString = moodsSet[i][j].date.toDateString();
       }
-      /*
-      console.log(dayDataSet);
-      console.log("sum:" + sum);
-      console.log("average:" + sum/moodsSet[i].length);
-      console.log("smallest:" + Math.min.apply(null, dayDataSet));
-      console.log("largest:" + Math.max.apply(null, dayDataSet));
-      */
 
       dayDataStat.lowerEnd = Math.min.apply(null, dayDataSet);
       dayDataStat.higherEnd = Math.max.apply(null, dayDataSet);
@@ -331,11 +326,6 @@ function prepareChartData(moodsSet) {
       statSet.push(dayDataStat);
     }
   }
-  /*
-  console.log("____");
-  console.log("____");
-  console.log(statSet);
-  */
 
   //Prepare x, y, array and arrayminus for the chart to show
   var data = [];
@@ -366,10 +356,6 @@ function prepareChartData(moodsSet) {
     var arrayminusValue = statSet[k].average - statSet[k].lowerEnd;
     track.error_y.arrayminus.push(arrayminusValue);
   }
-  /*
-  console.log(track.error_y.array);
-  console.log(track.error_y.arrayminus);
-  */
 
   data.push(track);
 
