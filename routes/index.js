@@ -172,7 +172,8 @@ router.get('/teams/:team/moods/:startDate/:endDate', function(req, res, next) {
           "userId": "$userId"},
         "mood": {"$last": "$moodText"},
         "date": {"$last": "$date"}
-      }}
+      }},
+      {"$sort": {"date": 1}}
   ], function(err, moods) {
     if(err) {
       if('development'===env) {
@@ -197,7 +198,8 @@ router.get('/teams/:team/moods/:lastNumOfDays/', function(req, res, next) {
           "userId": "$userId"},
         "mood": {"$last": "$moodText"},
         "date": {"$last": "$date"}
-      }}
+      }},
+      {"$sort": {"date": 1}}
   ], function(err, moods) {
     if(err) {
       if('development'===env) {
@@ -224,7 +226,8 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
           "userId": "$userId"},
         "mood": {"$last": "$moodText"},
         "date": {"$last": "$date"}
-      }}
+      }},
+      {"$sort": {"date": 1}}
   ], function(err, moods) {
     if(err) {
       if('development'===env) {
