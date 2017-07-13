@@ -9,10 +9,10 @@
 #   List the boards - Lists the available boards for the team (requires a team be set for the channel)
 #   Make {boardname} our board - Associates the requested board with the current channel (requires a team be set for the channel)
 #   What's our board? - Provides the name of the board associated with the channel (requires a team be set for the channel)
-#   What's our current/target/awesome state? - Provides the description for the requested state (requires a team and board be set for the channel)
-#   Set our current/target/awesome state to {description} - Sets the description for the requested state (requires a team and board be set for the channel)
+#   What's our {current/target/awesome} state? - Provides the description for the requested state (requires a team and board be set for the channel)
+#   Set our {current/target/awesome} state to {description} - Sets the description for the requested state (requires a team and board be set for the channel)
 #   What are our achievements? - Lists the achievements on the board (requires a team and board be set for the channel)
-#   @{awesomebotname} Awesome! {achievement} - Adds the provided achievement to the board (requires a team and board be set for the channel, must be addressing the bot to avoid accidental achievement creation)
+#   hubot Awesome! {achievement} - Adds the provided achievement to the board (requires a team and board be set for the channel, must be addressing the bot to avoid accidental achievement creation)
 
 module.exports = (robot) ->
 
