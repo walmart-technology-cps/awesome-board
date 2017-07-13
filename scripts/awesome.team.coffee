@@ -28,7 +28,7 @@ module.exports = (robot) ->
     "http://i.imgur.com/aimsF.jpg"
   ]
 
-  achievementReminder = new CronJob '00 00 16 * * 5', ->
+  achievementReminder = new CronJob '00 00 14 * * 5', ->
     for room, board of robot.brain.data._private.board
       robot.messageRoom room, "Hello " + robot.brain.data._private.team[room].name + "!"
       robot.messageRoom room, "Are there any achievements from the week that someone @here needs to add to your board '" + board.name + "'?"
