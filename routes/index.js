@@ -159,9 +159,6 @@ router.param('lastNumOfDays', function (req, res, next, amount) {
 });
 
 router.get('/teams/:team/moods/:startDate/:endDate', function(req, res, next) {
-  console.log(req.startDate);
-  console.log(req.endDate);
-  console.log(new Date());
   Mood.aggregate([
       {"$match": {"team": req.team._id, "date": {"$gt": req.startDate, "$lt": req.endDate}} },
       {"$group": {
@@ -214,7 +211,6 @@ router.get('/teams/:team/moods/:lastNumOfDays/', function(req, res, next) {
 router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, next) {
   var startDate = new Date();
   startDate.setDate(startDate.getDate()-req.lastNumOfDays);
-  var moodsSet = [];
 
   Mood.aggregate([
       {"$match": {"team": req.team._id, "date": {"$gt": startDate}} },
@@ -227,6 +223,51 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
         "mood": {"$last": "$moodText"},
         "date": {"$last": "$date"}
       }},
+      {"$project": {
+        "_id": {
+          "year": "$_id.year",
+          "month": "$_id.month",
+          "day": "$_id.day",
+        },
+        "date": 1,
+        "moodValue": {
+          "$switch": {
+            "branches": [
+              {
+                "case": {"$eq": ["$mood", "ecstatic"]},
+                "then": 5
+              },
+              {
+                "case": {"$eq": ["$mood", "happy"]},
+                "then": 4
+              },
+              {
+                "case": {"$eq": ["$mood", "indifferent"]},
+                "then": 3
+              },
+              {
+                "case": {"$eq": ["$mood", "disappointed"]},
+                "then": 2
+              },
+              {
+                "case": {"$eq": ["$mood", "sad"]},
+                "then": 1
+              },
+            ]
+          }
+        }
+      }},
+      {"$group": {
+        "_id": {
+          "year": "$_id.year",
+          "month": "$_id.month",
+          "day": "$_id.day"
+        },
+        "date": {"$first": "$date"},
+        "lowerEnd": {"$min": "$moodValue"},
+        "higherEnd": {"$max": "$moodValue"},
+        "average": {"$avg": "$moodValue"},
+      }},
       {"$sort": {"date": 1}}
   ], function(err, moods) {
     if(err) {
@@ -235,39 +276,15 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
       }
       return next(err);
     }
-    if(!moods) {
-      return [];
-    }
-
-    var moodsWithinOneDay = [];
-
-    if(req.lastNumOfDays != null){
-      //Loop each day
-      for(var j = req.lastNumOfDays; j > 0; j--) {
-        moodsWithinOneDay = [];
-        //Loop each moods
-        for(var i = 0; i< moods.length; i++){
-          var moodDate = Date.parse(moods[i].date);
-          var thatDay = Date.now() - j*24*60*60*1000;
-
-          //Later than that day, and different less than one day.
-          if( (moodDate - thatDay) < 24*60*60*1000 && (moodDate - thatDay) > 0 ){
-            moodsWithinOneDay.push(moods[i]);
-          }
-        }
-
-        //Skip empty days
-        if(moodsWithinOneDay.length > 0){
-          moodsSet.push(moodsWithinOneDay);
-        }
-      }
-
-    } else {
-      return next(err);
-    }
-
-    var data = prepareChartData(moodsSet);
+    var data = prepareChartData(moods);
     var figure = { 'data': data };
+
+    if('development'===env) {
+      console.log('MOOD DATA:');
+      console.log(moods);
+      console.log('CHART DATA:');
+      console.log(figure)
+    }
 
     var imgOpts = {
       format: 'png',
@@ -280,7 +297,7 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
 
       var today = new Date();
       var pngFilename = "mood-chart" + Date.now();
-      var todayDateNumber = today.getFullYear().toString() + today.getMonth().toString() + today.getDay().toString();//today.toDateString();
+      var todayDateNumber = today.getFullYear().toString() + today.getMonth().toString() + today.getDay().toString();
       var uriPath = 'img/' + todayDateNumber;
       var dir = 'public/' + uriPath;
 
@@ -302,34 +319,7 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
   });
 });
 
-var prepareChartData = function(moodsSet) {
-  var statSet = [];
-
-  for(var i = 0; i < moodsSet.length; i++){
-    if(moodsSet[i] != []){
-      var dayDataSet = [];
-      var dayDataStat = {
-        dateString : "",
-        lowerEnd : "",
-        higherEnd : "",
-        average : ""
-      };
-      var sum = 0;
-      for(var j = 0; j < moodsSet[i].length; j++){
-        var measureValue = measureMood(moodsSet[i][j].mood);
-        dayDataSet.push(measureValue);
-        sum = sum + measureValue;
-        dayDataStat.dateString = moodsSet[i][j].date.toDateString();
-      }
-
-      dayDataStat.lowerEnd = Math.min.apply(null, dayDataSet);
-      dayDataStat.higherEnd = Math.max.apply(null, dayDataSet);
-      dayDataStat.average = sum/moodsSet[i].length;
-
-      statSet.push(dayDataStat);
-    }
-  }
-
+var prepareChartData = function(moods) {
   //Prepare x, y, array and arrayminus for the chart to show
   var data = [];
   var track = {
@@ -343,43 +333,26 @@ var prepareChartData = function(moodsSet) {
     },
     type: 'scatter'
   };
-  
-  for(var k = 0; k < statSet.length; k++){
+
+  for(var k = 0; k < moods.length; k++){
     //x
-    track.x.push(statSet[k].dateString);
-    
+    track.x.push(moods[k].date.toDateString());
+
     //y
-    track.y.push(statSet[k].average);
-    
+    track.y.push(moods[k].average);
+
     //array, the top length above average
-    var arrayValue = statSet[k].higherEnd - statSet[k].average;
+    var arrayValue = moods[k].higherEnd - moods[k].average;
     track.error_y.array.push(arrayValue);
-    
+
     //arrayminus, the down length below average
-    var arrayminusValue = statSet[k].average - statSet[k].lowerEnd;
+    var arrayminusValue = moods[k].average - moods[k].lowerEnd;
     track.error_y.arrayminus.push(arrayminusValue);
   }
 
   data.push(track);
 
   return data;
-}
-
-function measureMood(moodText) {
-  switch (moodText) {
-    case 'ecstatic':
-      return 5;
-    case 'happy':
-      return 4;
-    case 'indifferent':
-      return 3;
-    case 'disappointed':
-      return 2;
-    case 'sad':
-      return 1;
-    default:
-      return Math.floor((Math.random() * 5) + 1);
-  }
 }
 /** **/
 
