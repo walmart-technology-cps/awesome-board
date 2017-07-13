@@ -211,179 +211,6 @@ router.get('/teams/:team/moods/:lastNumOfDays/', function(req, res, next) {
 router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, next) {
   var startDate = new Date();
   startDate.setDate(startDate.getDate()-req.lastNumOfDays);
-  var moodsSet = [];
-
-  Mood.aggregate([
-      {"$match": {"team": req.team._id, "date": {"$gt": startDate}} },
-      {"$group": {
-        "_id": {
-          "year": {"$year": "$date"},
-          "month": {"$month": "$date"},
-          "day": {"$dayOfMonth": "$date"},
-          "userId": "$userId"},
-        "mood": {"$last": "$moodText"},
-        "date": {"$last": "$date"}
-      }},
-      {"$sort": {"date": 1}}
-  ], function(err, moods) {
-    if(err) {
-      if('development'===env) {
-        console.warn('ERROR: ' + err);
-      }
-      return next(err);
-    }
-    if(!moods) {
-      return [];
-    }
-
-    var moodsWithinOneDay = [];
-
-    if(req.lastNumOfDays != null){
-      //Loop each day
-      for(var j = req.lastNumOfDays; j > 0; j--) {
-        moodsWithinOneDay = [];
-        //Loop each moods
-        for(var i = 0; i< moods.length; i++){
-          var moodDate = Date.parse(moods[i].date);
-          var thatDay = Date.now() - j*24*60*60*1000;
-
-          //Later than that day, and different less than one day.
-          if( (moodDate - thatDay) < 24*60*60*1000 && (moodDate - thatDay) > 0 ){
-            moodsWithinOneDay.push(moods[i]);
-          }
-        }
-
-        //Skip empty days
-        if(moodsWithinOneDay.length > 0){
-          moodsSet.push(moodsWithinOneDay);
-        }
-      }
-
-    } else {
-      return next(err);
-    }
-
-    var data = prepareChartData(moodsSet);
-    var figure = { 'data': data };
-
-    var imgOpts = {
-      format: 'png',
-      width: 1000,
-      height: 500
-    };
-
-    plotly.getImage(figure, imgOpts, function (error, imageStream) {
-      if (error) return console.log (error);
-
-      var today = new Date();
-      var pngFilename = "mood-chart" + Date.now();
-      var todayDateNumber = today.getFullYear().toString() + today.getMonth().toString() + today.getDay().toString();//today.toDateString();
-      var uriPath = 'img/' + todayDateNumber;
-      var dir = 'public/' + uriPath;
-
-      if (!fs.existsSync(dir)){
-        fs.mkdirSync(dir);
-      }
-      var imageFilename = dir + '/' + pngFilename + '.png';
-      var uriPath = uriPath + '/' + pngFilename + '.png';
-      var fileStream = fs.createWriteStream(imageFilename);
-      imageStream.pipe(fileStream);
-
-      var imageUrl = "http://" + req.headers.host + "/" + uriPath;
-      res.json(
-        {
-          "imageUrl":imageUrl
-        }
-      );
-    });
-  });
-});
-
-var prepareChartData = function(moodsSet) {
-  var statSet = [];
-
-  for(var i = 0; i < moodsSet.length; i++){
-    if(moodsSet[i] != []){
-      var dayDataSet = [];
-      var dayDataStat = {
-        dateString : "",
-        lowerEnd : "",
-        higherEnd : "",
-        average : ""
-      };
-      var sum = 0;
-      for(var j = 0; j < moodsSet[i].length; j++){
-        var measureValue = measureMood(moodsSet[i][j].mood);
-        dayDataSet.push(measureValue);
-        sum = sum + measureValue;
-        dayDataStat.dateString = moodsSet[i][j].date.toDateString();
-      }
-
-      dayDataStat.lowerEnd = Math.min.apply(null, dayDataSet);
-      dayDataStat.higherEnd = Math.max.apply(null, dayDataSet);
-      dayDataStat.average = sum/moodsSet[i].length;
-
-      statSet.push(dayDataStat);
-    }
-  }
-
-  //Prepare x, y, array and arrayminus for the chart to show
-  var data = [];
-  var track = {
-    x : [],
-    y : [],
-    error_y: {
-      type: 'data',
-      symmetric: false,
-      array: [],
-      arrayminus: []
-    },
-    type: 'scatter'
-  };
-
-  for(var k = 0; k < statSet.length; k++){
-    //x
-    track.x.push(statSet[k].dateString);
-
-    //y
-    track.y.push(statSet[k].average);
-
-    //array, the top length above average
-    var arrayValue = statSet[k].higherEnd - statSet[k].average;
-    track.error_y.array.push(arrayValue);
-
-    //arrayminus, the down length below average
-    var arrayminusValue = statSet[k].average - statSet[k].lowerEnd;
-    track.error_y.arrayminus.push(arrayminusValue);
-  }
-
-  data.push(track);
-
-  return data;
-}
-
-function measureMood(moodText) {
-  switch (moodText) {
-    case 'ecstatic':
-      return 5;
-    case 'happy':
-      return 4;
-    case 'indifferent':
-      return 3;
-    case 'disappointed':
-      return 2;
-    case 'sad':
-      return 1;
-    default:
-      return Math.floor((Math.random() * 5) + 1);
-  }
-}
-
-/* The solution for mood graphing below will only work for MongoDB v3.4+ due to $switch
-
-router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, next) {
-  var startDate = new Date();
-  startDate.setDate(startDate.getDate()-req.lastNumOfDays);
 
   Mood.aggregate([
       {"$match": {"team": req.team._id, "date": {"$gt": startDate}} },
@@ -404,30 +231,15 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
         },
         "date": 1,
         "moodValue": {
-          "$switch": {
-            "branches": [
-              {
-                "case": {"$eq": ["$mood", "ecstatic"]},
-                "then": 5
-              },
-              {
-                "case": {"$eq": ["$mood", "happy"]},
-                "then": 4
-              },
-              {
-                "case": {"$eq": ["$mood", "indifferent"]},
-                "then": 3
-              },
-              {
-                "case": {"$eq": ["$mood", "disappointed"]},
-                "then": 2
-              },
-              {
-                "case": {"$eq": ["$mood", "sad"]},
-                "then": 1
-              },
-            ]
-          }
+          "$cond": [{"$eq": ["$mood", "ecstatic"]}, 5, {
+            "$cond": [{"$eq": ["$mood", "happy"]}, 4,  {
+              "$cond": [{"$eq": ["$mood", "indifferent"]}, 3, {
+                "$cond": [{"$eq": ["$mood", "disappointed"]}, 2, {
+                  "$cond": [{"$eq": ["$mood", "sad"]}, 1, 0]
+                }]
+              }]
+            }]
+          }]
         }
       }},
       {"$group": {
@@ -527,8 +339,6 @@ var prepareChartData = function(moods) {
 
   return data;
 }
-
-*/
 
 /** **/
 
