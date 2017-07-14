@@ -160,6 +160,13 @@ router.param('lastNumOfDays', function (req, res, next, amount) {
 
 router.get('/teams/:team/moods/:startDate/:endDate', function(req, res, next) {
   Mood.aggregate([
+      {"$project": {
+        "_id": 1,
+        "team": 1,
+        "moodText": 1,
+        "userId": 1,
+        "date": { "$subtract": ["$date", 14400000]}
+      }},
       {"$match": {"team": req.team._id, "date": {"$gt": req.startDate, "$lt": req.endDate}} },
       {"$group": {
         "_id": {
@@ -186,6 +193,13 @@ router.get('/teams/:team/moods/:lastNumOfDays/', function(req, res, next) {
   var startDate = new Date();
   startDate.setDate(startDate.getDate()-req.lastNumOfDays);
   Mood.aggregate([
+      {"$project": {
+        "_id": 1,
+        "team": 1,
+        "moodText": 1,
+        "userId": 1,
+        "date": { "$subtract": ["$date", 14400000]}
+      }},
       {"$match": {"team": req.team._id, "date": {"$gt": startDate}} },
       {"$group": {
         "_id": {
@@ -213,6 +227,13 @@ router.get('/teams/:team/moods/:lastNumOfDays/trend/image', function(req, res, n
   startDate.setDate(startDate.getDate()-req.lastNumOfDays);
 
   Mood.aggregate([
+      {"$project": {
+        "_id": 1,
+        "team": 1,
+        "moodText": 1,
+        "userId": 1,
+        "date": { "$subtract": ["$date", 14400000]}
+      }},
       {"$match": {"team": req.team._id, "date": {"$gt": startDate}} },
       {"$group": {
         "_id": {
